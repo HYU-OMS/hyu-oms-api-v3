@@ -1,13 +1,14 @@
 service:
-  name: temp
+  name: hyu-oms-backend-serverless-nodejs
 
-# Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
 
 provider:
   name: aws
   runtime: nodejs8.10
+  region: ${opt:region, 'ap-northeast-1'}
+  stage: ${opt:stage, 'dev'}
 
 functions:
   hello:
