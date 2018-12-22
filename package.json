@@ -1,7 +1,7 @@
 {
-  "name": "hyu-oms-backend-serverless-nodejs",
+  "name": "hyu-oms-api-serverless",
   "version": "1.0.0",
-  "description": "HYU-OMS Serverless API Server using NodeJS",
+  "description": "HYU-OMS API using Serverless Framework",
   "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +16,6 @@
     "typescript": "^2.9.2",
     "webpack": "^4.5.0"
   },
-  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "author": "khhan1993 <kordreamfollower@gmail.com>",
   "license": "MIT"
 }

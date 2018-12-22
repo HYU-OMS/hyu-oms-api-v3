@@ -1,1 +1,1 @@
-## HYU OMS Serverless Backend with NodeJS
+## HYU-OMS API using Serverless Framework
