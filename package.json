@@ -2,21 +2,19 @@
   "name": "hyu-oms-api-serverless",
   "version": "1.0.0",
   "description": "HYU-OMS API using Serverless Framework",
-  "main": "handler.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/aws-lambda": "8.10.1",
-    "@types/node": "^8.0.57",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
     "serverless-offline": "^3.31.3",
-    "serverless-webpack": "^5.1.1",
-    "source-map-support": "^0.5.6",
-    "ts-loader": "^4.2.0",
-    "typescript": "^2.9.2",
-    "webpack": "^4.5.0"
+    "serverless-webpack": "^3.1.1",
+    "webpack": "^3.3.0"
   },
-  "author": "khhan1993 <kordreamfollower@gmail.com>",
+  "author": "Kihoon Han <kordreamfollower@gmail.com>",
   "license": "MIT"
 }
