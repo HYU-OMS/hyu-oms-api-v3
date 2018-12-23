@@ -22,11 +22,9 @@ custom:
     prod: edge
 
 functions:
-  first:
-    handler: first.hello
-  second:
-    handler: second.hello
+  hello:
+    handler: handler.hello
     events:
       - http:
           method: get
-          path: second
+          path: /
