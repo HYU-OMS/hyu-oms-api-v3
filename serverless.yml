@@ -22,9 +22,5 @@ custom:
     prod: edge
 
 functions:
-  hello:
-    handler: handler.hello
-    events:
-      - http:
-          method: get
-          path: /
+  - ${file(./functions/alive/alive-functions.yml)}
+  - ${file(./functions/user/user-functions.yml)}

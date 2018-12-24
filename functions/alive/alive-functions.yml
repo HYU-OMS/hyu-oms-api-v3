@@ -1,0 +1,6 @@
+hello:
+  handler: functions/alive/alive.hello
+  events:
+    - http:
+        method: get
+        path: /
