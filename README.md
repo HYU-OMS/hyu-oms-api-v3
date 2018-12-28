@@ -1,1 +1,1 @@
-## HYU-OMS API using Serverless Framework
+## HYU-OMS API

@@ -1,6 +1,0 @@
-user-create:
-  handler: functions/user/user.create
-  events:
-    - http:
-        method: post
-        path: /user

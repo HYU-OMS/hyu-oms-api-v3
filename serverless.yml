@@ -1,5 +1,5 @@
 service:
-  name: hyu-oms-api-serverless
+  name: hyu-oms-api
 
 plugins:
   - serverless-webpack
@@ -22,5 +22,8 @@ custom:
     prod: edge
 
 functions:
-  - ${file(./functions/alive/alive-functions.yml)}
-  - ${file(./functions/user/user-functions.yml)}
+  app:
+    handler: app.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
