@@ -9,12 +9,6 @@ const config = {
     "jwt": {
       "secret_key": (process.env.API_V1_JWT_SECRET_KEY || "USE_YOUR_SECRET_KEY"),
       "algorithm": (process.env.API_V1_JWT_ALGORITHM || "HS512")
-    },
-    "facebook": {
-      "app_secret": (process.env.API_V1_FB_APP_SECRET || "")
-    },
-    "kakao": {
-      "app_secret": (process.env.API_V1_KAKAO_APP_SECRET || "")
     }
   }
 };

@@ -27,7 +27,6 @@ router.post('/', async (req, res, next) => {
     }
 
     const fb_app_secret = config['v1']['facebook']['app_secret'];
-    const appsecret_proof = crypto.createHmac('sha256', fb_app_secret).update(fb_access_token).digest('hex');
 
     // Facebook API Server 에 요청을 보내기 위한 옵션
     const options = {
@@ -35,7 +34,6 @@ router.post('/', async (req, res, next) => {
       "uri": "https://graph.facebook.com/v3.2/me",
       "qs": {
         "access_token": fb_access_token,
-        "appsecret_proof": appsecret_proof,
         "fields": "id,name"
       },
       "resolveWithFullResponse": true
@@ -136,7 +134,7 @@ router.post('/', async (req, res, next) => {
     res.json({"jwt": token});
   }
   else if(auth_type === 'kakao') {
-
+    
   }
   else {
     throw createError(400, "'type' must be 'facebook' or 'kakao'!", {
