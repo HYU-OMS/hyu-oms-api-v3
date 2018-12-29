@@ -5,12 +5,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import serverless from 'serverless-http';
 
+import http_api_v1 from './api_http/v1';
+
 const app = asyncify(express());
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// HTTP API Version 1
+app.use('/v1', http_api_v1);
 
 // catch 404 and forward to error handler
 app.use(async (req, res, next) => {
@@ -19,19 +24,24 @@ app.use(async (req, res, next) => {
 
 // error handler
 app.use(async (err, req, res, next) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  const status_code = err.status || 500;
 
-  // 개발 모드에서 error stack 확인용으로 삽입
-  if(req.app.get('env') === "development") {
-    console.log(err.stack);
+  // 혹시 연결이 남아있을수도 있으므로 destroy 를 진행. (이렇게 하는게 맞나?)
+  if(Boolean(req.db_connected) === true) {
+    req.mysql.quit();
   }
 
-  res.status(err.status || 500);
-  res.json({
-    "message": res.locals.message,
-    "error": res.locals.error
-  });
+  if(parseInt((status_code / 10).toString(), 10) === 50) {
+    res.status(status_code);
+    res.json({
+      message: 'Internal server error',
+      state: err.state || undefined
+    });
+  }
+  else {
+    res.status(status_code);
+    res.json(err);
+  }
 });
 
 // export default app;
