@@ -31,6 +31,8 @@ app.use(async (err, req, res, next) => {
     req.mysql.quit();
   }
 
+  console.log(err.stack);
+
   if(parseInt((status_code / 10).toString(), 10) === 50) {
     res.status(status_code);
     res.json({

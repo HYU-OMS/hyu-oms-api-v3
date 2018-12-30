@@ -1,11 +1,14 @@
+import createError from 'http-errors';
 import express from 'express';
 import asyncify from 'express-asyncify';
 import helmet from 'helmet';
 import mysql from 'serverless-mysql';
+import jwt from 'jsonwebtoken';
 
 import config from '../../config';
 
 import user_controller from './controllers/user';
+import group_controller from './controllers/group';
 
 const app = asyncify(express());
 
@@ -27,14 +30,59 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// JWT 존재 시 확인
+app.use(async (req, res, next) => {
+  let authorization = req.get('Authorization');
+  if(Boolean(authorization) === true) {
+    authorization = authorization.split(' ');
+    if(authorization[0] !== 'Bearer' || authorization.length !== 2) {
+      throw createError(400, "'Authorization' must be 'Bearer [token]'.", {
+        state: 'AUTH_HEADER_FORMAT_ERR',
+        info: ['Authorization']
+      });
+    }
+
+    let decoded_token = undefined;
+    try {
+      decoded_token = jwt.verify(authorization[1], config['v1']['jwt']['secret_key']);
+    }
+    catch(err) {
+      switch(err.name) {
+        case 'TokenExpiredError':
+          throw createError(400, err.message, {
+            state: 'JWT_EXPIRED_ERR',
+            info: ['Authorization']
+          });
+
+        case 'JsonWebTokenError':
+          throw createError(400, err.message, {
+            state: 'JWT_VERIFY_ERR',
+            info: ['Authorization']
+          });
+
+        default:
+          throw err;
+      }
+    }
+
+    // TODO: auth_uuid valid check
+
+    req.user_info = decoded_token;
+  }
+
+  next();
+});
+
 // Controllers
 app.use("/user", user_controller);
+app.use("/group", group_controller);
 
 // 서버 Alive 체크를 위한 것
 app.get("/", async (req, res, next) => {
-  res.set("X-HYU-OMS-API-VERSION", "1.0");
-  res.status(204);
-  res.end();
+  res.status(200);
+  res.json({
+    "version": "1.0"
+  });
 });
 
 export default app;

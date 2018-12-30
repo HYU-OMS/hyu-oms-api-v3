@@ -8,10 +8,26 @@ plugins:
 provider:
   name: aws
   runtime: nodejs8.10
+  timeout: 20
   region: ${opt:region, 'ap-northeast-1'}
   stage: ${opt:stage, 'dev'}
   apiName: HYU OMS API ${self:custom.apiNameSuffix.${self:provider.stage}}
   endpointType: ${self:custom.apiEndpointType.${self:provider.stage}}
+  environment:
+    API_V1_MYSQL_HOST: ${opt:mysql_host, ''}
+    API_V1_MYSQL_USER: ${opt:mysql_user, 'hyu-oms'}
+    API_V1_MYSQL_PASSWD: ${opt:mysql_passwd, ''}
+    API_V1_MYSQL_DB: ${opt:mysql_db, 'hyu-oms'}
+    API_V1_JWT_SECRET_KEY: ${opt:jwt_secret_key, 'USE_YOUR_OWN_SECRET_KEY'}
+    API_V1_JWT_ALGORITHM: ${opt:jwt_algorithm, 'HS512'}
+    NODE_ENV: ${self:custom.nodeEnv.${self:provider.stage}}
+  vpc:
+    securityGroupIds:
+      - sg-02b257495ac2ad4a4
+    subnetIds:
+      - subnet-0acf32c4797849397
+      - subnet-09b585ce07a3b43dd
+      - subnet-0984abd787c2543c6
 
 custom:
   apiNameSuffix:
@@ -20,10 +36,14 @@ custom:
   apiEndpointType:
     dev: regional
     prod: edge
+  nodeEnv:
+    dev: development
+    prod: production
 
 functions:
   app:
     handler: app.handler
+    description: 'HYU-OMS API function with NodeJS & ExpressJS'
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
