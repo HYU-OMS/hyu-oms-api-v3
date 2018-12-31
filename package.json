@@ -12,9 +12,9 @@
     "helmet": "^3.15.0",
     "http-errors": "^1.7.1",
     "jsonwebtoken": "^8.4.0",
+    "mysql2": "^1.6.4",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
-    "serverless-mysql": "^1.2.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

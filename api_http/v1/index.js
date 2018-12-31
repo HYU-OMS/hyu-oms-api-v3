@@ -2,7 +2,7 @@ import createError from 'http-errors';
 import express from 'express';
 import asyncify from 'express-asyncify';
 import helmet from 'helmet';
-import mysql from 'serverless-mysql';
+import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 
 import config from '../../config';
@@ -14,19 +14,20 @@ const app = asyncify(express());
 
 app.use(helmet());
 
-// Serverless MySQL 관련 정보 지정
-app.set("mysql", mysql({
+// MySQL pool 관련 정보 지정
+app.set("mysql_pool", mysql.createPool({
   config: {
-    host     : config['v1']['mysql']['host'],
-    database : config['v1']['mysql']['database'],
-    user     : config['v1']['mysql']['user'],
-    password : config['v1']['mysql']['password']
+    connectionLimit: config['v1']['mysql']['connection_limit'],
+    host: config['v1']['mysql']['host'],
+    database: config['v1']['mysql']['database'],
+    user: config['v1']['mysql']['user'],
+    password: config['v1']['mysql']['password']
   }
 }));
 
-// DB object 를 req object 에 assign 한다.
+// DB pool object 를 req object 에 assign 한다.
 app.use(async (req, res, next) => {
-  req.mysql = app.get("mysql"); // DB object 가져오기
+  req.db_pool = app.get("mysql_pool"); // DB object 가져오기
   next();
 });
 

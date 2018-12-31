@@ -63,35 +63,32 @@ router.post('/', async (req, res, next) => {
     // Facebook 유저 이름을 받는다.
     const fb_nick = profile['name'];
 
-    const db = req.mysql;
-    await db.connect();
-    req.db_connected = true;
+    // DB Connection 생성 후 req object에 assign.
+    req.db_connection = await req.db_pool.getConnection();
 
     const user_chk_query = "SELECT * FROM `users` WHERE `fb_id` = ?";
     const user_chk_val = [fb_id];
-    let user_results = await db.query(user_chk_query, user_chk_val);
-
-    let user_data = undefined;
+    let [user_rows, user_fields] = await req.db_connection.execute(user_chk_query, user_chk_val);
 
     // 없는 유저일 경우 자동으로 회원 가입을 진행한다.
-    if(user_results.length === 0) {
+    if(user_rows.length === 0) {
       try {
-        await db.query("START TRANSACTION");
+        await req.db_connection.query("START TRANSACTION");
 
         const new_user_query = "INSERT INTO `users` SET `name` = ?, `fb_id` = ?";
         const new_user_val = [fb_nick, fb_id];
-        await db.query(new_user_query, new_user_val);
+        await req.db_connection.execute(new_user_query, new_user_val);
 
-        await db.query("COMMIT");
+        await req.db_connection.query("COMMIT");
       } catch(err) {
-        await db.query("ROLLBACK");
+        await req.db_connection.query("ROLLBACK");
         throw err;
       }
 
-      user_results = await db.query(user_chk_query, user_chk_val);
+      [user_rows, user_fields] = await req.db_connection.execute(user_chk_query, user_chk_val);
     }
 
-    user_data = JSON.parse(JSON.stringify(user_results[0]));
+    const user_data = JSON.parse(JSON.stringify(user_rows[0]));
 
     if(parseInt(user_data['enabled'], 10) !== 1) {
       throw createError(401, "This account has been disabled. Please contact system administrator!", {
@@ -103,20 +100,20 @@ router.post('/', async (req, res, next) => {
     const auth_uuid = uuidv4();
 
     try {
-      await db.query("START TRANSACTION");
+      await req.db_connection.query("START TRANSACTION");
 
       const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ? WHERE `id` = ?";
       const update_uuid_val = [auth_uuid, fb_nick, user_data['id']];
-      await db.query(update_uuid_query, update_uuid_val);
+      await req.db_connection.execute(update_uuid_query, update_uuid_val);
 
-      await db.query("COMMIT");
+      await req.db_connection.query("COMMIT");
     } catch(err) {
-      await db.query("ROLLBACK");
+      await req.db_connection.query("ROLLBACK");
       throw err;
     }
 
-    db.quit();
-    req.db_connected = false;
+    // Connection 끊기.
+    req.db_connection.release();
 
     const token = jwt.sign({
       "user_id": user_data['id'],
@@ -176,35 +173,32 @@ router.post('/', async (req, res, next) => {
     // Kakao 유저 닉네임을 받는다.
     const kakao_nick = profile['properties']['nickname'];
 
-    const db = req.mysql;
-    await db.connect();
-    req.db_connected = true;
+    // DB Connection 생성 후 req object에 assign.
+    req.db_connection = await req.db_pool.getConnection();
 
     const user_chk_query = "SELECT * FROM `users` WHERE `kakao_id` = ?";
     const user_chk_val = [kakao_id];
-    let user_results = await db.query(user_chk_query, user_chk_val);
-
-    let user_data = undefined;
+    let [user_rows, user_fields] = await req.db_connection.execute(user_chk_query, user_chk_val);
 
     // 없는 유저일 경우 자동으로 회원 가입을 진행한다.
-    if(user_results.length === 0) {
+    if(user_rows.length === 0) {
       try {
-        await db.query("START TRANSACTION");
+        await req.db_connection.query("START TRANSACTION");
 
         const new_user_query = "INSERT INTO `users` SET `name` = ?, `kakao_id` = ?";
         const new_user_val = [kakao_nick, kakao_id];
-        await db.query(new_user_query, new_user_val);
+        await req.db_connection.execute(new_user_query, new_user_val);
 
-        await db.query("COMMIT");
+        await req.db_connection.query("COMMIT");
       } catch(err) {
-        await db.query("ROLLBACK");
+        await req.db_connection.query("ROLLBACK");
         throw err;
       }
 
-      user_results = await db.query(user_chk_query, user_chk_val);
+      [user_rows, user_fields] = await req.db_connection.execute(user_chk_query, user_chk_val);
     }
 
-    user_data = JSON.parse(JSON.stringify(user_results[0]));
+    const user_data = JSON.parse(JSON.stringify(user_rows[0]));
 
     if(parseInt(user_data['enabled'], 10) !== 1) {
       throw createError(401, "This account has been disabled. Please contact system administrator!", {
@@ -216,20 +210,20 @@ router.post('/', async (req, res, next) => {
     const auth_uuid = uuidv4();
 
     try {
-      await db.query("START TRANSACTION");
+      await req.db_connection.query("START TRANSACTION");
 
       const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ? WHERE `id` = ?";
       const update_uuid_val = [auth_uuid, kakao_nick, user_data['id']];
-      await db.query(update_uuid_query, update_uuid_val);
+      await req.db_connection.execute(update_uuid_query, update_uuid_val);
 
-      await db.query("COMMIT");
+      await req.db_connection.query("COMMIT");
     } catch(err) {
-      await db.query("ROLLBACK");
+      await req.db_connection.query("ROLLBACK");
       throw err;
     }
 
-    db.quit();
-    req.db_connected = false;
+    // Connection 끊기.
+    req.db_connection.release();
 
     const token = jwt.sign({
       "user_id": user_data['id'],

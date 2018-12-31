@@ -1,6 +1,9 @@
 import createError from 'http-errors';
 import express from 'express';
 import asyncify from 'express-asyncify';
+import crypto from 'crypto';
+
+import config from '../../../config';
 
 const router = asyncify(express.Router());
 
@@ -32,32 +35,31 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const db = req.mysql;
-  await db.connect();
-  req.db_connected = true;
+  // DB Connection 생성 후 req object에 assign.
+  req.db_connection = await req.db_pool.getConnection();
 
   let new_group_id = undefined;
   try {
-    await db.query("START TRANSACTION");
+    await req.db_connection.query("START TRANSACTION");
 
     const group_add_query = "INSERT INTO `groups` SET `name` = ?, `creator_id` = ?";
     const group_add_val = [name, req.user_info['user_id']];
-    const group_add_result = await db.query(group_add_query, group_add_val);
+    const [group_add_results, group_add_fields] = await req.db_connection.execute(group_add_query, group_add_val);
 
-    new_group_id = group_add_result.insertId;
+    new_group_id = group_add_results.insertId;
 
     const member_update_query = "INSERT INTO `members` SET `group_id` = ?, `user_id` = ?, `role` = '2'";
     const member_update_val = [new_group_id, req.user_info['user_id']];
-    await db.query(member_update_query, member_update_val);
+    await req.db_connection.execute(member_update_query, member_update_val);
 
-    await db.query("COMMIT");
+    await req.db_connection.query("COMMIT");
   } catch(err) {
-    await db.query("ROLLBACK");
+    await req.db_connection.query("ROLLBACK");
     throw err;
   }
 
-  db.quit();
-  req.db_connected = false;
+  // Connection 끊기.
+  req.db_connection.release();
 
   res.status(201);
   res.json({
@@ -73,9 +75,71 @@ router.put('/:group_id', async (req, res, next) => {
     });
   }
 
+  const group_id = parseInt(req.params.group_id, 10);
+  if(isNaN(group_id)) {
+    throw createError(400, "'group_id' must be integer.", {
+      state: 'REQUIRED_VALUE_INVALID_ERR',
+      info: ['group_id']
+    });
+  }
+
   const content = req.body || {};
 
+  let signup_code = null;
+  if(Boolean(content['code']) === true) {
+    signup_code = content['code'];
 
+    const cipher = crypto.createCipher('aes-256-cbc', config['v1']['aes']['key']);
+    signup_code = cipher.update(signup_code, 'utf8', 'base64');
+    signup_code += cipher.final('base64');
+  }
+
+  // DB Connection 생성 후 req object에 assign.
+  req.db_connection = await req.db_pool.getConnection();
+
+  const group_chk_query = "SELECT * FROM `groups` WHERE `id` = ?";
+  const group_chk_val = [group_id];
+  const [group_rows, group_fields] = await req.db_connection.execute(group_chk_query, group_chk_val);
+
+  if(group_rows.length === 0 || group_rows[0]['is_enabled'] !== 1) {
+    throw createError(404, "Requested 'group_id' not found.", {
+      state: 'DATA_NOT_FOUND_ERR',
+      info: ['group_id']
+    });
+  }
+
+  if(group_rows[0]['creator_id'] !== req.user_info['user_id']) {
+    throw createError(403, "Only creator of this group can update signup code!", {
+      state: 'ACCESS_DENIED_ERR',
+      info: ['group_id', 'user_id']
+    });
+  }
+
+  try {
+    await req.db_connection.query("START TRANSACTION");
+
+    const group_update_query = "UPDATE `groups` SET `signup_code` = ? WHERE `id` = ?";
+    const group_update_val = [signup_code, group_id];
+    await req.execute.query(group_update_query, group_update_val);
+
+    await req.db_connection.query("COMMIT");
+  }
+  catch(err) {
+    await req.db_connection.query("ROLLBACK");
+    throw err;
+  }
+
+  req.db_connection.release();
+
+  const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+  signup_code = decipher.update(signup_code, 'base64', 'utf-8');
+  signup_code += decipher.final('utf-8');
+
+  res.status(200);
+  res.json({
+    "group_id": group_id,
+    "code": signup_code
+  });
 });
 
 router.delete('/:group_id', async (req, res, next) => {
@@ -94,22 +158,21 @@ router.delete('/:group_id', async (req, res, next) => {
     });
   }
 
-  const db = req.mysql;
-  await db.connect();
-  req.db_connected = true;
+  // DB Connection 생성 후 req object에 assign.
+  req.db_connection = await req.db_pool.getConnection();
 
   const group_chk_query = "SELECT * FROM `groups` WHERE `id` = ?";
   const group_chk_val = [group_id];
-  const group_results = await db.query(group_chk_query, group_chk_val);
+  const [group_rows, group_fields] = await req.db_connection.execute(group_chk_query, group_chk_val);
 
-  if(group_results.length === 0 || group_results[0]['is_enabled'] !== 1) {
-    throw createError(404, "Requested 'group_id' not exists.", {
+  if(group_rows.length === 0 || group_rows[0]['is_enabled'] !== 1) {
+    throw createError(404, "Requested 'group_id' not found.", {
       state: 'DATA_NOT_FOUND_ERR',
       info: ['group_id']
     });
   }
 
-  if(group_results[0]['creator_id'] !== req.user_info['user_id']) {
+  if(group_rows[0]['creator_id'] !== req.user_info['user_id']) {
     throw createError(403, "Only creator of this group can delete it!", {
       state: 'ACCESS_DENIED_ERR',
       info: ['group_id', 'user_id']
@@ -117,24 +180,23 @@ router.delete('/:group_id', async (req, res, next) => {
   }
 
   try {
-    await db.query("START TRANSACTION");
+    await req.db_connection.query("START TRANSACTION");
 
     const group_update_query = "UPDATE `groups` SET `is_enabled` = 0 WHERE `id` = ?";
     const group_update_val = [group_id];
-    await db.query(group_update_query, group_update_val);
+    await req.db_connection.execute(group_update_query, group_update_val);
 
     const member_delete_query = "DELETE FROM `members` WHERE `group_id` = ?";
     const member_delete_val = [group_id];
-    await db.query(member_delete_query, member_delete_val);
+    await req.db_connection.execute(member_delete_query, member_delete_val);
 
-    await db.query("COMMIT");
+    await req.db_connection.query("COMMIT");
   } catch(err) {
-    await db.query("ROLLBACK");
+    await req.db_connection.query("ROLLBACK");
     throw err;
   }
 
-  db.quit();
-  req.db_connected = false;
+  req.db_connection.release();
 
   res.status(200);
   res.json({

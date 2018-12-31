@@ -27,8 +27,8 @@ app.use(async (err, req, res, next) => {
   const status_code = err.status || 500;
 
   // 혹시 연결이 남아있을수도 있으므로 destroy 를 진행. (이렇게 하는게 맞나?)
-  if(Boolean(req.db_connected) === true) {
-    req.mysql.quit();
+  if(Boolean(req.db_connection) !== false) {
+    req.db_connection.destroy();
   }
 
   console.log(err.stack);
