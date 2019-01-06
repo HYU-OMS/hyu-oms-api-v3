@@ -2,11 +2,17 @@ import createError from 'http-errors';
 import express from 'express';
 import asyncify from 'express-asyncify';
 import cors from 'cors';
+import logger from 'morgan';
 import helmet from 'helmet';
 
 import http_api_v1 from './api_http/v1';
 
 const app = asyncify(express());
+
+/* Development 일 경우 console 에 log 표시 */
+if(process.env.NODE_ENV === 'development') {
+  app.use(logger('dev'));
+}
 
 app.use(helmet());
 app.use(cors());
@@ -30,7 +36,10 @@ app.use(async (err, req, res, next) => {
     req.db_connection.destroy();
   }
 
-  console.log(err.stack);
+  /* Development 일 경우 console 에 error 표시 */
+  if(process.env.NODE_ENV === 'development') {
+    console.log(err.stack);
+  }
 
   if(parseInt((status_code / 10).toString(), 10) === 50) {
     res.status(status_code);
