@@ -16,13 +16,11 @@ app.use(helmet());
 
 // MySQL pool 관련 정보 지정
 app.set("mysql_pool", mysql.createPool({
-  config: {
-    connectionLimit: config['v1']['mysql']['connection_limit'],
-    host: config['v1']['mysql']['host'],
-    database: config['v1']['mysql']['database'],
-    user: config['v1']['mysql']['user'],
-    password: config['v1']['mysql']['password']
-  }
+  connectionLimit: config['v1']['mysql']['connection_limit'],
+  host: config['v1']['mysql']['host'],
+  database: config['v1']['mysql']['database'],
+  user: config['v1']['mysql']['user'],
+  password: config['v1']['mysql']['password']
 }));
 
 // DB pool object 를 req object 에 assign 한다.

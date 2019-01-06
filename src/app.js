@@ -3,7 +3,6 @@ import express from 'express';
 import asyncify from 'express-asyncify';
 import cors from 'cors';
 import helmet from 'helmet';
-import serverless from 'serverless-http';
 
 import http_api_v1 from './api_http/v1';
 
@@ -46,5 +45,4 @@ app.use(async (err, req, res, next) => {
   }
 });
 
-// export default app;
-export const handler = serverless(app);
+export default app;
