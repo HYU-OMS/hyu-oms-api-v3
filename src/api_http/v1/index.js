@@ -10,6 +10,7 @@ import config from '../../config';
 import user_controller from './controllers/user';
 import group_controller from './controllers/group';
 import member_controller from './controllers/member';
+import menu_controller from './controllers/menu';
 
 const app = asyncify(express());
 
@@ -77,6 +78,7 @@ app.use(async (req, res, next) => {
 app.use("/user", user_controller);
 app.use("/group", group_controller);
 app.use("/member", member_controller);
+app.use("/menu", menu_controller);
 
 // 서버 Alive 체크를 위한 것
 app.get("/", async (req, res, next) => {
