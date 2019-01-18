@@ -24,7 +24,9 @@ app.use('/v1', http_api_v1);
 
 // catch 404 and forward to error handler
 app.use(async (req, res, next) => {
-  next(createError(404));
+  next(createError(404, "Requested URI not exists.", {
+    state: 'URI_NOT_EXISTS'
+  }));
 });
 
 // error handler
@@ -36,16 +38,19 @@ app.use(async (err, req, res, next) => {
     req.db_connection.destroy();
   }
 
-  /* Development 일 경우 console 에 error 표시 */
+  /* Development 일 경우 console 과 response 에 error 표시 */
+  let err_stack = undefined;
   if(process.env.NODE_ENV === 'development') {
-    console.log(err.stack);
+    err_stack = err.stack;
+    console.log(err_stack);
   }
 
   if(parseInt((status_code / 10).toString(), 10) === 50) {
     res.status(status_code);
     res.json({
       message: 'Internal server error',
-      state: err.state || undefined
+      state: err.state || undefined,
+      stack: err_stack
     });
   }
   else {
