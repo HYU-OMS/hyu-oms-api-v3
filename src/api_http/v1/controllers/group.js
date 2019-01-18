@@ -3,12 +3,55 @@ import express from 'express';
 import asyncify from 'express-asyncify';
 import crypto from 'crypto';
 
+import Pagination from '../modules/pagination';
 import config from '../../../config';
 
 const router = asyncify(express.Router());
 
 router.get('/', async (req, res, next) => {
-
+  if(Boolean(req.user_info) === false) {
+    throw createError(401, "JWT must be provided!", {
+      state: 'AUTH_HEADER_EMPTY_ERR',
+      info: ['Authorization']
+    });
+  }
+  
+  let page = req.query['page'];
+  if(Boolean(page) === false || isNaN(page) || page < 1) {
+    page = 1;
+  }
+  
+  // DB Connection 생성 후 req object에 assign.
+  req.db_connection = await req.db_pool.getConnection();
+  
+  const fetch_query = " SELECT `groups`.`id`, `groups`.`name`, " + 
+    "`groups`.`creator_id`, `members`.`role`, `groups`.`signup_code`, " +
+    "`groups`.`created_at` FROM `groups` " +
+    "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
+    "WHERE `members`.`user_id` = ? AND `groups`.`is_enabled` = 1 ";
+  const count_query = " SELECT COUNT(`groups`.`id`) AS `cnt` FROM `groups` " +
+    "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
+    "WHERE `members`.`user_id` = ? ";
+  const order_query = " ORDER BY `groups`.`id` ASC ";
+  
+  const fetch_params = {
+    fetch: [req.user_info['user_id']],
+    count: [req.user_info['user_id']]
+  };
+  
+  const [result, paging] = await (new Pagination(fetch_query, count_query,
+                                                 order_query, page,
+                                                 req.db_connection,
+                                                 fetch_params))
+                                                 .getResult();
+  
+  req.db_connection.release();
+  
+  res.status(200);
+  res.json({
+    list: result,
+    pagination: paging
+  });
 });
 
 router.post('/', async (req, res, next) => {
