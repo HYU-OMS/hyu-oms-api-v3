@@ -21,35 +21,42 @@ router.get('/', async (req, res, next) => {
     page = 1;
   }
   
-  // DB Connection 생성 후 req object에 assign.
-  req.db_connection = await req.db_pool.getConnection();
-  
-  const fetch_query = " SELECT `groups`.`id`, `groups`.`name`, " + 
-    "`groups`.`creator_id`, `members`.`role`, `groups`.`signup_code`, " +
-    "`groups`.`created_at` FROM `groups` " +
+  const fetch_q = " SELECT `groups`.`id`, `groups`.`name`, `groups`.`creator_id`, " +
+    "`groups`.`signup_code`, `groups`.`created_at` FROM `groups` " +
     "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
     "WHERE `members`.`user_id` = ? AND `groups`.`is_enabled` = 1 ";
-  const count_query = " SELECT COUNT(`groups`.`id`) AS `cnt` FROM `groups` " +
+  const count_q = " SELECT COUNT(`groups`.`id`) AS `cnt` FROM `groups` " +
     "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
     "WHERE `members`.`user_id` = ? ";
-  const order_query = " ORDER BY `groups`.`id` ASC ";
+  const order_q = " ORDER BY `groups`.`id` ASC ";
   
   const fetch_params = {
     fetch: [req.user_info['user_id']],
     count: [req.user_info['user_id']]
   };
-  
-  const [result, paging] = await (new Pagination(fetch_query, count_query,
-                                                 order_query, page,
-                                                 req.db_connection,
-                                                 fetch_params))
-                                                 .getResult();
+
+  // DB Connection 생성 후 req object 에 assign.
+  req.db_connection = await req.db_pool.getConnection();
+
+  const group_pagination = new Pagination(fetch_q, count_q, order_q, page, req.db_connection, fetch_params);
+  const [items, paging] = await group_pagination.getResult();
   
   req.db_connection.release();
+
+  // Signup code 복호화
+  const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+  for(const item of items) {
+    if(item['signup_code'] !== null) {
+      let signup_code = decipher.update(item['signup_code'], 'base64', 'utf-8');
+      signup_code += decipher.final('utf-8');
+
+      item['signup_code'] = signup_code;
+    }
+  }
   
   res.status(200);
   res.json({
-    list: result,
+    list: items,
     pagination: paging
   });
 });
@@ -163,7 +170,7 @@ router.put('/:group_id', async (req, res, next) => {
 
     const group_update_query = "UPDATE `groups` SET `signup_code` = ? WHERE `id` = ?";
     const group_update_val = [signup_code, group_id];
-    await req.execute.query(group_update_query, group_update_val);
+    await req.db_connection.execute(group_update_query, group_update_val);
 
     await req.db_connection.query("COMMIT");
   }
@@ -174,9 +181,11 @@ router.put('/:group_id', async (req, res, next) => {
 
   req.db_connection.release();
 
-  const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
-  signup_code = decipher.update(signup_code, 'base64', 'utf-8');
-  signup_code += decipher.final('utf-8');
+  if(signup_code !== null) {
+    const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+    signup_code = decipher.update(signup_code, 'base64', 'utf-8');
+    signup_code += decipher.final('utf-8');
+  }
 
   res.status(200);
   res.json({
