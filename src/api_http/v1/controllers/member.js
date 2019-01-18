@@ -46,10 +46,12 @@ router.get('/', async (req, res, next) => {
   const member_chk_val = [group_id];
   const [member_rows, member_fields] = await req.db_connection.execute(member_chk_query, member_chk_val);
 
+  const members = JSON.parse(JSON.stringify(member_rows));
+
   req.db_connection.release();
 
   res.status(200);
-  res.json(member_rows);
+  res.json(members);
 });
 
 router.post('/', async (req, res, next) => {
@@ -180,7 +182,7 @@ router.put('/', async (req, res, next) => {
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
   if(chk_p_rows.length === 0) {
-    throw createError(403, "Not a admin of this group.", {
+    throw createError(403, "Not an admin of this group.", {
       state: 'ACCESS_DENIED_ERR',
       info: ['group_id']
     });
@@ -265,7 +267,7 @@ router.delete('/', async (req, res, next) => {
   const [p_chk_rows, p_chk_fields] = await req.db_connection.execute(p_chk_query, p_chk_val);
 
   if(p_chk_rows.length === 0) {
-    throw createError(403, "Not a admin of this group.", {
+    throw createError(403, "Not an admin of this group.", {
       state: 'ACCESS_DENIED_ERR',
       info: ['group_id']
     });
