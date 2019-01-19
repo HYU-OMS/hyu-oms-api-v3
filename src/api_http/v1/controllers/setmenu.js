@@ -113,8 +113,8 @@ router.post('/', async (req, res, next) => {
     });
   }
   else if(menu_list.length === 0) {
-    throw createError(400, "'menu_list' must contains integer!", {
-      state: 'INVALID_ITEM_EXISTS_ERR',
+    throw createError(400, "'menu_list' must contains item!", {
+      state: 'ITEM_NOT_EXISTS_ERR',
       info: ['menu_list']
     });
   }
