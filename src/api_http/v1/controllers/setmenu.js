@@ -77,7 +77,7 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const name = parseInt(content['name'], 10);
+  const name = (content['name']).toString();
   if(Boolean(name) === false) {
     throw createError(400, "'name' must be provided!", {
       state: 'REQUIRED_VALUE_EMPTY_ERR',
