@@ -13,6 +13,7 @@ import member_controller from './controllers/member';
 import menu_controller from './controllers/menu';
 import setmenu_controller from './controllers/setmenu';
 import order_controller from './controllers/order';
+import queue_controller from './controllers/queue';
 
 const app = asyncify(express());
 
@@ -83,6 +84,7 @@ app.use("/member", member_controller);
 app.use("/menu", menu_controller);
 app.use("/setmenu", setmenu_controller);
 app.use("/order", order_controller);
+app.use("/queue", queue_controller);
 
 // 서버 Alive 체크를 위한 것
 app.get("/", async (req, res, next) => {
