@@ -77,7 +77,7 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const name = (content['name']).toString();
+  const name = (content['name'] || "").toString();
   if(Boolean(name) === false) {
     throw createError(400, "'name' must be provided!", {
       state: 'REQUIRED_VALUE_EMPTY_ERR',
@@ -145,7 +145,7 @@ router.post('/', async (req, res, next) => {
   const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
-  if(chk_p_rows.length === 0 || parseInt(chk_p_rows[0]['role'].toString(), 10) < 2) {
+  if(chk_p_rows.length === 0 || parseInt(chk_p_rows[0]['role'], 10) < 2) {
     throw createError(403, "Not a admin of this group.", {
       state: 'ACCESS_DENIED_ERR',
       info: ['group_id']

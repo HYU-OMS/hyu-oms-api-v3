@@ -126,7 +126,7 @@ router.get('/:order_id', async (req, res, next) => {
   }
 
   const order_data = JSON.parse(JSON.stringify(get_order_rows[0]));
-  const group_id = parseInt((get_order_rows[0]['group_id']).toString(), 10);
+  const group_id = parseInt(get_order_rows[0]['group_id'], 10);
 
   const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ?";
   const chk_p_val = [group_id, req.user_info['user_id']];
@@ -168,7 +168,7 @@ router.post('/', async (req, res, next) => {
   }
 
   // 원래는 숫자였는데 사용자의 요청에 따라 database 에서 data type 을 string 으로 변경하게 됨.
-  const table_id = (content['table_id']).toString();
+  const table_id = (content['table_id'] || "").toString();
   if(Boolean(table_id) === false) {
     throw createError(400, "'table_id' must be provided!", {
       state: 'REQUIRED_VALUE_EMPTY_ERR',
@@ -246,8 +246,8 @@ router.post('/', async (req, res, next) => {
     const key = (content['id']).toString();
     group_menus[key] = {
       "name": content['name'],
-      "price": parseInt((content['price']).toString(), 10),
-      "is_enabled": parseInt((content['is_enabled']).toString(), 10)
+      "price": parseInt(content['price'], 10),
+      "is_enabled": parseInt(content['is_enabled'], 10)
     };
   }
 
@@ -268,15 +268,15 @@ router.post('/', async (req, res, next) => {
       });
     }
 
-    if(parseInt((group_menus[key]['is_enabled']).toString(), 10) === 0) {
+    if(parseInt(group_menus[key]['is_enabled'], 10) === 0) {
       throw createError(403, "Requested 'menu_id -> " + key + "' in 'menu_list' is not available.", {
         state: 'ITEM_NOT_AVAILABLE_ERR',
         info: ['menu_list', 'group_id']
       });
     }
 
-    const amount = parseInt((menu_info['amount']).toString(), 10);
-    const price = parseInt((group_menus[key]['price']).toString(), 10);
+    const amount = parseInt(menu_info['amount'], 10);
+    const price = parseInt(group_menus[key]['price'], 10);
     total_price += (amount * price);
 
     order_menus.push({
@@ -296,8 +296,8 @@ router.post('/', async (req, res, next) => {
     const key = (content['id']).toString();
     group_setmenus[key] = {
       "name": content['name'],
-      "price": parseInt((content['price']).toString(), 10),
-      "is_enabled": parseInt((content['is_enabled']).toString(), 10)
+      "price": parseInt(content['price'], 10),
+      "is_enabled": parseInt(content['is_enabled'], 10)
     }
   }
 
@@ -318,15 +318,15 @@ router.post('/', async (req, res, next) => {
       });
     }
 
-    if(parseInt((group_setmenus[key]['is_enabled']).toString(), 10) === 0) {
+    if(parseInt(group_setmenus[key]['is_enabled'], 10) === 0) {
       throw createError(403, "Requested 'setmenu_id -> " + key + "' in 'setmenu_list' is not available.", {
         state: 'ITEM_NOT_AVAILABLE_ERR',
         info: ['setmenu_list', 'group_id']
       });
     }
 
-    const amount = parseInt((setmenu_info['amount']).toString(), 10);
-    const price = parseInt((group_setmenus[key]['price']).toString(), 10);
+    const amount = parseInt(setmenu_info['amount'], 10);
+    const price = parseInt(group_setmenus[key]['price'], 10);
     total_price += (amount * price);
 
     order_setmenus.push({
@@ -355,8 +355,8 @@ router.post('/', async (req, res, next) => {
     }
 
     for(const content of setmenu_list) {
-      const set_id = parseInt((content['id']).toString(), 10);
-      const set_amount = parseInt((content['amount']).toString(), 10);
+      const set_id = parseInt(content['id'], 10);
+      const set_amount = parseInt(content['amount'], 10);
 
       const get_set_query = "SELECT * FROM `set_contents` WHERE `set_id` = ?";
       const get_set_val = [set_id];
@@ -365,8 +365,8 @@ router.post('/', async (req, res, next) => {
       const set_data = JSON.parse(JSON.stringify(get_set_rows));
 
       for(const each_data of set_data) {
-        const menu_id = parseInt((each_data['menu_id']).toString(), 10);
-        const menu_amount = parseInt((each_data['amount']).toString(), 10);
+        const menu_id = parseInt(each_data['menu_id'], 10);
+        const menu_amount = parseInt(each_data['amount'], 10);
 
         const chk_trans_query = "SELECT * FROM `order_transactions` WHERE `order_id` = ? AND `menu_id` = ?";
         const chk_trans_val = [new_order_id, menu_id];
@@ -445,14 +445,14 @@ router.put('/:order_id', async (req, res, next) => {
     });
   }
 
-  if(parseInt((get_order_rows[0]['status']).toString(), 10) !== 0) {
+  if(parseInt(get_order_rows[0]['status'], 10) !== 0) {
     throw createError(403, "This 'order_id' is already processed.", {
       state: 'ALREADY_PROCESSED_ERR',
       info: ['order_id']
     });
   }
 
-  const group_id = parseInt((get_order_rows[0]['group_id']).toString(), 10);
+  const group_id = parseInt(get_order_rows[0]['group_id'], 10);
 
   const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 0";
   const chk_p_val = [group_id, req,user_info['user_id']];
