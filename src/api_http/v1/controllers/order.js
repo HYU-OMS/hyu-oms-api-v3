@@ -27,9 +27,12 @@ router.get('/', async (req, res, next) => {
     page = 1;
   }
 
-  let show_only_pending = 0;
-  if(Boolean(req.query['show_only_pending']) === true && isNaN(req.query['show_only_pending']) === false) {
+  let show_only_pending = parseInt(req.query['show_only_pending'], 10);
+  if(isNaN(show_only_pending) === false && show_only_pending !== 0) {
     show_only_pending = 1;
+  }
+  else {
+    show_only_pending = 0;
   }
 
   // DB Connection 생성 후 req object 에 assign.
