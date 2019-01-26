@@ -6,6 +6,9 @@ import app from '../app';
 import debug from 'debug';
 import http from 'http';
 
+/* Set timezone to UTC */
+process.env.TZ = 'UTC';
+
 const debug_on_listen = debug('hyu-oms-api:server');
 
 /**
