@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
   }
   
   const fetch_q = " SELECT `groups`.`id`, `groups`.`name`, `groups`.`creator_id`, " +
-    "`groups`.`signup_code`, `groups`.`created_at` FROM `groups` " +
+    "`groups`.`signup_code`, `groups`.`created_at`, `members`.`role` FROM `groups` " +
     "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
     "WHERE `members`.`user_id` = ? AND `groups`.`is_enabled` = 1 ";
   const count_q = " SELECT COUNT(`groups`.`id`) AS `cnt` FROM `groups` " +
