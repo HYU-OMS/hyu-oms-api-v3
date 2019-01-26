@@ -455,7 +455,7 @@ router.put('/:order_id', async (req, res, next) => {
   const group_id = parseInt(get_order_rows[0]['group_id'], 10);
 
   const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 0";
-  const chk_p_val = [group_id, req,user_info['user_id']];
+  const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
   if(chk_p_rows.length === 0) {
