@@ -107,7 +107,7 @@ router.post('/', async (req, res, next) => {
 
     const add_menu_query = "INSERT INTO `menus` SET `name` = ?, `price` = ?, `group_id` = ?";
     const add_menu_val = [name, price, group_id];
-    const [add_menu_rows, add_menu_fields] = await req.db_connection.execute(add_menu_query, add_menu_rows);
+    const [add_menu_rows, add_menu_fields] = await req.db_connection.execute(add_menu_query, add_menu_val);
 
     new_menu_id = add_menu_rows.insertId;
 
@@ -162,7 +162,7 @@ router.put('/:menu_id', async (req, res, next) => {
   // DB Connection 생성 후 req object에 assign.
   req.db_connection = await req.db_pool.getConnection();
 
-  const menu_chk_query = "SELECT * FROM `menus` WHERE `id` = :menu_id";
+  const menu_chk_query = "SELECT * FROM `menus` WHERE `id` = ?";
   const menu_chk_val = [menu_id];
   const [menu_chk_rows, menu_chk_fields] = await req.db_connection.execute(menu_chk_query, menu_chk_val);
 
