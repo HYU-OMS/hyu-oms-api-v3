@@ -241,9 +241,7 @@ router.delete('/', async (req, res, next) => {
     });
   }
 
-  const content = req.body || {};
-
-  const group_id = parseInt(content['group_id'], 10);
+  const group_id = parseInt(req.query['group_id'], 10);
   if(isNaN(group_id)) {
     throw createError(400, "'group_id' must be integer.", {
       state: 'REQUIRED_VALUE_INVALID_ERR',
@@ -251,7 +249,7 @@ router.delete('/', async (req, res, next) => {
     });
   }
 
-  const user_id = parseInt(content['user_id'], 10);
+  const user_id = parseInt(req.query['user_id'], 10);
   if(isNaN(user_id)) {
     throw createError(400, "'user_id' must be integer.", {
       state: 'REQUIRED_VALUE_INVALID_ERR',
