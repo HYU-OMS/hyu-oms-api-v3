@@ -36,6 +36,11 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// SocketIO connection object 를 assign.
+app.use(async (req, res, next) => {
+  req.io = app.get('io');
+  next();
+});
 
 // HTTP API Version 1
 app.use('/v1', http_api_v1);

@@ -123,6 +123,16 @@ router.post('/', async (req, res, next) => {
   res.json({
     "menu_id": new_menu_id
   });
+
+  // Socket.IO emit
+  const io = req.io;
+  const room_name = "group_" + group_id.toString();
+  const data = {
+    "name": name,
+    "price": price
+  };
+
+  io.to(room_name).emit('menu_added', data);
 });
 
 router.put('/:menu_id', async (req, res, next) => {
@@ -174,6 +184,7 @@ router.put('/:menu_id', async (req, res, next) => {
   }
 
   const group_id = menu_chk_rows[0]['group_id'];
+  const name = menu_chk_rows[0]['name'];
 
   // 이전 버전에서 role check 누락됨
   const p_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
@@ -219,6 +230,17 @@ router.put('/:menu_id', async (req, res, next) => {
   res.json({
     "menu_id": menu_id
   });
+
+  // Socket.IO emit
+  const io = req.io;
+  const room_name = "group_" + group_id.toString();
+  const data = {
+    "name": name,
+    "price": price,
+    "is_enabled": (is_enabled === 1)
+  };
+
+  io.to(room_name).emit('menu_changed', data);
 });
 
 export default router;

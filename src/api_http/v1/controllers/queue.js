@@ -135,13 +135,36 @@ router.put('/', async (req, res, next) => {
     throw err;
   }
 
-  req.db_connection.release();
-
   res.status(200);
   res.json({
     "order_id": order_id,
     "menu_id": menu_id
   });
+
+  const get_order_query = "SELECT * FROM `orders` WHERE `id` = ?";
+  const get_order_val = [order_id];
+  const [get_order_rows, get_order_fields] = await req.db_connection.execute(get_order_query, get_order_val);
+
+  const table_name = get_order_rows[0]['table_id'];
+
+  const menu_chk_query = "SELECT * FROM `menus` WHERE `id` = ?";
+  const menu_chk_val = [menu_id];
+  const [menu_chk_rows, menu_chk_fields] = await req.db_connection.execute(menu_chk_query, menu_chk_val);
+
+  const menu_name = menu_chk_rows[0]['name'];
+
+  req.db_connection.release();
+
+  // Socket.IO emit
+  const io = req.io;
+  const room_name = "group_" + group_id.toString();
+  const data = {
+    "order_id": order_id,
+    "table_name": table_name,
+    "menu_name": menu_name
+  };
+
+  io.to(room_name).emit('queue_removed', data);
 });
 
 export default router;

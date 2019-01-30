@@ -403,6 +403,17 @@ router.post('/', async (req, res, next) => {
     "order_id": new_order_id,
     "total_price": total_price
   });
+
+  // Socket.IO emit
+  const io = req.io;
+  const room_name = "group_" + group_id.toString();
+  const data = {
+    "order_id": new_order_id,
+    "price": total_price,
+    "table_name": table_id
+  };
+
+  io.to(room_name).emit('order_added', data);
 });
 
 router.put('/:order_id', async (req, res, next) => {
@@ -453,6 +464,7 @@ router.put('/:order_id', async (req, res, next) => {
   }
 
   const group_id = parseInt(get_order_rows[0]['group_id'], 10);
+  const table_name = get_order_rows[0]['table_id'];
 
   const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 0";
   const chk_p_val = [group_id, req.user_info['user_id']];
@@ -491,6 +503,21 @@ router.put('/:order_id', async (req, res, next) => {
     "order_id": order_id,
     "is_approved": is_approved
   });
+
+  // Socket.IO emit
+  const io = req.io;
+  const room_name = "group_" + group_id.toString();
+  const data = {
+    "order_id": order_id,
+    "table_name": table_name,
+    "is_approved": (is_approved === 1)
+  };
+
+  io.to(room_name).emit('order_verified', data);
+
+  if(is_approved === 1) {
+    io.to(room_name).emit('queue_added', data);
+  }
 });
 
 export default router;
