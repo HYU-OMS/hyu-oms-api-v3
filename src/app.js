@@ -6,6 +6,8 @@ import logger from 'morgan';
 import helmet from 'helmet';
 
 import http_api_v1 from './api_http/v1';
+import mysql from "mysql2/promise";
+import config from "./config";
 
 const app = asyncify(express());
 
@@ -18,6 +20,22 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// MySQL pool 관련 정보 지정
+app.set("mysql_pool", mysql.createPool({
+  connectionLimit: config['v1']['mysql']['connection_limit'],
+  host: config['v1']['mysql']['host'],
+  database: config['v1']['mysql']['database'],
+  user: config['v1']['mysql']['user'],
+  password: config['v1']['mysql']['password']
+}));
+
+// DB pool object 를 req object 에 assign 한다.
+app.use(async (req, res, next) => {
+  req.db_pool = app.get("mysql_pool"); // DB object 가져오기
+  next();
+});
+
 
 // HTTP API Version 1
 app.use('/v1', http_api_v1);

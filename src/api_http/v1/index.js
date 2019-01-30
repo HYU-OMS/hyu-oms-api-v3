@@ -20,21 +20,6 @@ const app = asyncify(express());
 
 app.use(helmet());
 
-// MySQL pool 관련 정보 지정
-app.set("mysql_pool", mysql.createPool({
-  connectionLimit: config['v1']['mysql']['connection_limit'],
-  host: config['v1']['mysql']['host'],
-  database: config['v1']['mysql']['database'],
-  user: config['v1']['mysql']['user'],
-  password: config['v1']['mysql']['password']
-}));
-
-// DB pool object 를 req object 에 assign 한다.
-app.use(async (req, res, next) => {
-  req.db_pool = app.get("mysql_pool"); // DB object 가져오기
-  next();
-});
-
 // JWT 존재 시 확인
 app.use(async (req, res, next) => {
   if(Boolean(req.get('Authorization')) === true || Boolean(req.query['jwt']) === true) {
