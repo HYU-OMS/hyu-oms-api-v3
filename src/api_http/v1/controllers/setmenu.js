@@ -281,6 +281,8 @@ router.put('/:setmenu_id', async (req, res, next) => {
     throw err;
   }
 
+  req.db_connection.release();
+
   res.status(200);
   res.json({
     "setmenu_id": setmenu_id
