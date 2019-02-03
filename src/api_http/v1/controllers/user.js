@@ -112,9 +112,6 @@ router.post('/', async (req, res, next) => {
       throw err;
     }
 
-    // Connection 끊기.
-    req.db_connection.release();
-
     const token = jwt.sign({
       "user_id": user_data['id'],
       "user_name": user_data['name'],
@@ -221,9 +218,6 @@ router.post('/', async (req, res, next) => {
       await req.db_connection.query("ROLLBACK");
       throw err;
     }
-
-    // Connection 끊기.
-    req.db_connection.release();
 
     const token = jwt.sign({
       "user_id": user_data['id'],

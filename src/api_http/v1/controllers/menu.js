@@ -40,8 +40,6 @@ router.get('/', async (req, res, next) => {
 
   const menus = JSON.parse(JSON.stringify(get_menu_rows));
 
-  req.db_connection.release();
-
   res.status(200);
   res.json(menus);
 });
@@ -116,8 +114,6 @@ router.post('/', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(201);
   res.json({
@@ -223,8 +219,6 @@ router.put('/:menu_id', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(200);
   res.json({

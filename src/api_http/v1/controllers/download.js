@@ -48,8 +48,6 @@ router.get('/', async (req, res, next) => {
 
     const order_list = JSON.parse(JSON.stringify(get_orders_rows));
 
-    req.db_connection.release();
-
     const sheet_name = "Group_" + group_id.toString();
     const download_filename = sheet_name + ".xlsx";
 

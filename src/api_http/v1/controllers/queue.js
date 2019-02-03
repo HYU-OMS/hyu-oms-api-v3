@@ -62,8 +62,6 @@ router.get('/', async (req, res, next) => {
     each_menu['queue'] = queue_list[(each_menu['id']).toString()];
   }
 
-  req.db_connection.release();
-
   res.status(200);
   res.json(combined_queue_list);
 });
@@ -152,8 +150,6 @@ router.put('/', async (req, res, next) => {
   const [menu_chk_rows, menu_chk_fields] = await req.db_connection.execute(menu_chk_query, menu_chk_val);
 
   const menu_name = menu_chk_rows[0]['name'];
-
-  req.db_connection.release();
 
   // Socket.IO emit
   const io = req.io;

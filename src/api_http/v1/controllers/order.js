@@ -86,8 +86,6 @@ router.get('/', async (req, res, next) => {
     [items, paging] = await order_pagination.getResult();
   }
 
-  req.db_connection.release();
-
   res.status(200);
   res.json({
     list: items,
@@ -142,8 +140,6 @@ router.get('/:order_id', async (req, res, next) => {
   order_data['order_menus'] = JSON.parse(order_data['order_menus']);
   order_data['order_setmenus'] = JSON.parse(order_data['order_setmenus']);
   order_data['order_id'] = order_id;
-
-  req.db_connection.release();
 
   res.status(200);
   res.json(order_data);
@@ -396,8 +392,6 @@ router.post('/', async (req, res, next) => {
     throw err;
   }
 
-  req.db_connection.release();
-
   res.status(201);
   res.json({
     "order_id": new_order_id,
@@ -495,8 +489,6 @@ router.put('/:order_id', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(200);
   res.json({

@@ -27,7 +27,8 @@ app.set("mysql_pool", mysql.createPool({
   host: config['v1']['mysql']['host'],
   database: config['v1']['mysql']['database'],
   user: config['v1']['mysql']['user'],
-  password: config['v1']['mysql']['password']
+  password: config['v1']['mysql']['password'],
+  waitForConnections: config['v1']['mysql']['wait_for_connections']
 }));
 
 // DB pool object 를 req object 에 assign 한다.
@@ -39,6 +40,25 @@ app.use(async (req, res, next) => {
 // SocketIO connection object 를 assign.
 app.use(async (req, res, next) => {
   req.io = app.get('io');
+  next();
+});
+
+// DB connection 을 release 하기 위해 Event Listener 등록
+app.use(async (req, res, next) => {
+  // response 를 전송하지 못했을 경우.
+  res.on('close', async () => {
+    if(Boolean(req.db_connection) !== false) {
+      req.db_connection.destroy();
+    }
+  });
+
+  // response 가 정상적으로 전송된 경우.
+  res.on('finish', async () => {
+    if(Boolean(req.db_connection) !== false) {
+      req.db_connection.release();
+    }
+  });
+
   next();
 });
 

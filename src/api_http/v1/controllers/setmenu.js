@@ -53,8 +53,6 @@ router.get('/', async (req, res, next) => {
     setmenu['menu_list'] = JSON.parse(JSON.stringify(get_setinfo_rows));
   }
 
-  req.db_connection.release();
-
   res.status(200);
   res.json(setmenus);
 });
@@ -187,8 +185,6 @@ router.post('/', async (req, res, next) => {
     throw err;
   }
 
-  req.db_connection.release();
-
   res.status(201);
   res.json({
     "setmenu_id": new_setmenu_id
@@ -280,8 +276,6 @@ router.put('/:setmenu_id', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(200);
   res.json({

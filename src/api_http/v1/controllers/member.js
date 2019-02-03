@@ -48,8 +48,6 @@ router.get('/', async (req, res, next) => {
 
   const members = JSON.parse(JSON.stringify(member_rows));
 
-  req.db_connection.release();
-
   res.status(200);
   res.json(members);
 });
@@ -130,8 +128,6 @@ router.post('/', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(200);
   res.json({
@@ -223,8 +219,6 @@ router.put('/', async (req, res, next) => {
     throw err;
   }
 
-  req.db_connection.release();
-
   res.status(200);
   res.json({
     "group_id": group_id,
@@ -305,8 +299,6 @@ router.delete('/', async (req, res, next) => {
     await req.db_connection.query("ROLLBACK");
     throw err;
   }
-
-  req.db_connection.release();
 
   res.status(200);
   res.json({
