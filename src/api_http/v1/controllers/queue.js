@@ -160,7 +160,7 @@ router.put('/', async (req, res, next) => {
     "menu_name": menu_name
   };
 
-  io.to(room_name).emit('queue_removed', data);
+  io.volatile.to(room_name).emit('queue_removed', data);
 });
 
 export default router;

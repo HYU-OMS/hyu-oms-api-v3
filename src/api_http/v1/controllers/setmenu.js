@@ -198,7 +198,7 @@ router.post('/', async (req, res, next) => {
     "price": price
   };
 
-  io.to(room_name).emit('setmenu_added', data);
+  io.volatile.to(room_name).emit('setmenu_added', data);
 });
 
 router.put('/:setmenu_id', async (req, res, next) => {
@@ -291,7 +291,7 @@ router.put('/:setmenu_id', async (req, res, next) => {
     "is_enabled": (is_enabled === 1)
   };
 
-  io.to(room_name).emit('setmenu_changed', data);
+  io.volatile.to(room_name).emit('setmenu_changed', data);
 });
 
 export default router;

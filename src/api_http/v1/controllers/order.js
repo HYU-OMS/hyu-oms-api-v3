@@ -407,7 +407,7 @@ router.post('/', async (req, res, next) => {
     "table_name": table_id
   };
 
-  io.to(room_name).emit('order_added', data);
+  io.volatile.to(room_name).emit('order_added', data);
 });
 
 router.put('/:order_id', async (req, res, next) => {
@@ -505,10 +505,10 @@ router.put('/:order_id', async (req, res, next) => {
     "is_approved": (is_approved === 1)
   };
 
-  io.to(room_name).emit('order_verified', data);
+  io.volatile.to(room_name).emit('order_verified', data);
 
   if(is_approved === 1) {
-    io.to(room_name).emit('queue_added', data);
+    io.volatile.to(room_name).emit('queue_added', data);
   }
 });
 
