@@ -124,7 +124,7 @@ router.put('/', async (req, res, next) => {
 
     const update_trans_query = "UPDATE `order_transactions` SET `is_delivered` = 1, `updated_at` = ? " +
       "WHERE `order_id` = ? AND `menu_id` = ?";
-    const update_trans_val = [new Date(), order_id, menu_id];
+    const update_trans_val = [new Date(new Date().toUTCString()), order_id, menu_id];
     await req.db_connection.execute(update_trans_query, update_trans_val);
 
     await req.db_connection.query("COMMIT");

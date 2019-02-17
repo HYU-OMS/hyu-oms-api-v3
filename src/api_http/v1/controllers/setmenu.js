@@ -268,7 +268,7 @@ router.put('/:setmenu_id', async (req, res, next) => {
     await req.db_connection.query("START TRANSACTION");
 
     const update_set_query = "UPDATE `setmenus` SET `price` = ?, `is_enabled` = ?, `updated_at` = ? WHERE `id` = ?";
-    const update_set_val = [price, is_enabled, new Date(), setmenu_id];
+    const update_set_val = [price, is_enabled, new Date(new Date().toUTCString()), setmenu_id];
     await req.db_connection.execute(update_set_query, update_set_val);
 
     await req.db_connection.query("COMMIT");

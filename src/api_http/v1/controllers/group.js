@@ -164,7 +164,7 @@ router.put('/:group_id', async (req, res, next) => {
     await req.db_connection.query("START TRANSACTION");
 
     const group_update_query = "UPDATE `groups` SET `signup_code` = ?, `updated_at` = ? WHERE `id` = ?";
-    const group_update_val = [signup_code, new Date(), group_id];
+    const group_update_val = [signup_code, new Date(new Date().toUTCString()), group_id];
     await req.db_connection.execute(group_update_query, group_update_val);
 
     await req.db_connection.query("COMMIT");
@@ -228,7 +228,7 @@ router.delete('/:group_id', async (req, res, next) => {
     await req.db_connection.query("START TRANSACTION");
 
     const group_update_query = "UPDATE `groups` SET `is_enabled` = 0, `updated_at` = ? WHERE `id` = ?";
-    const group_update_val = [new Date(), group_id];
+    const group_update_val = [new Date(new Date().toUTCString()), group_id];
     await req.db_connection.execute(group_update_query, group_update_val);
 
     const member_delete_query = "DELETE FROM `members` WHERE `group_id` = ?";
