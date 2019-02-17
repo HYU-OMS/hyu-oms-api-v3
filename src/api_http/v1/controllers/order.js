@@ -344,9 +344,10 @@ router.post('/', async (req, res, next) => {
 
     new_order_id = add_order_rows.insertId;
 
-    const add_order_trans_query = "INSERT INTO `order_transactions` SET `order_id` = ?, `menu_id` = ?, `amount` = ?";
+    const add_order_trans_query = "INSERT INTO `order_transactions` SET " +
+      "`order_id` = ?, `menu_id` = ?, `group_id` = ?, `amount` = ?";
     for(const content of menu_list) {
-      const add_order_trans_val = [new_order_id, content['id'], content['amount']];
+      const add_order_trans_val = [new_order_id, content['id'], group_id, content['amount']];
       await req.db_connection.execute(add_order_trans_query, add_order_trans_val);
     }
 
@@ -364,26 +365,28 @@ router.post('/', async (req, res, next) => {
         const menu_id = parseInt(each_data['menu_id'], 10);
         const menu_amount = parseInt(each_data['amount'], 10);
 
-        const chk_trans_query = "SELECT * FROM `order_transactions` WHERE `order_id` = ? AND `menu_id` = ?";
-        const chk_trans_val = [new_order_id, menu_id];
+        const chk_trans_query = "SELECT * FROM `order_transactions` " +
+          "WHERE `order_id` = ? AND `menu_id` = ? AND `group_id` = ?";
+        const chk_trans_val = [new_order_id, menu_id, group_id];
         const [chk_trans_rows, chk_trans_fields] = await req.db_connection.execute(chk_trans_query, chk_trans_val);
 
         if(chk_trans_rows.length === 0) {
-          const add_trans_query = "INSERT INTO `order_transactions` SET `order_id` = ?, `menu_id` = ?, `amount` = ?";
-          const add_trans_val = [new_order_id, menu_id, menu_amount * set_amount];
+          const add_trans_query = "INSERT INTO `order_transactions` SET " +
+            "`order_id` = ?, `menu_id` = ?, `group_id` = ?, `amount` = ?";
+          const add_trans_val = [new_order_id, menu_id, group_id, menu_amount * set_amount];
           await req.db_connection.execute(add_trans_query, add_trans_val);
         }
         else {
           const update_trans_query = "UPDATE `order_transactions` SET `amount` = `amount` + ?, `updated_at` = ? " +
-            "WHERE `order_id` = ? AND `menu_id` = ?";
-          const update_trans_val = [menu_amount * set_amount, new Date(), new_order_id, menu_id];
+            "WHERE `order_id` = ? AND `menu_id` = ? AND `group_id` = ?";
+          const update_trans_val = [menu_amount * set_amount, new Date(), new_order_id, menu_id, group_id];
           await req.db_connection.execute(update_trans_query, update_trans_val);
         }
       }
     }
 
-    const update_other_query = "UPDATE `order_transactions` SET `group_id` = ?, `table_id` = ?, `updated_at` = ? WHERE `order_id` = ?";
-    const update_other_val = [group_id, table_id, new Date(), new_order_id];
+    const update_other_query = "UPDATE `order_transactions` SET `table_id` = ?, `updated_at` = ? WHERE `order_id` = ?";
+    const update_other_val = [table_id, new Date(), new_order_id];
     await req.db_connection.execute(update_other_query, update_other_val);
 
     await req.db_connection.query("COMMIT");
