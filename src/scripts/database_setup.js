@@ -1,8 +1,6 @@
 import mysql from "mysql2/promise";
 import config from '../config';
 
-const trigger_definer = "`" + config['v1']['mysql']['user'] + "`@`" + config['v1']['mysql']['host'] + "`";
-
 const database_setup = async () => {
   return new Promise(async (resolve, reject) => {
     let db_connection = undefined;
