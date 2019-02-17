@@ -4,12 +4,7 @@ const onConnection = (socket) => {
     for(let i = 0; i < existing_rooms.length; i++) {
       const name = existing_rooms[i];
       if(name.slice(0, 6) === "group_") {
-        socket.leave(name, (err) => {
-          if(process.env.NODE_ENV === 'development') {
-            const err_stack = err.stack;
-            console.log(err_stack);
-          }
-        });
+        socket.leave(name, (err) => {});
       }
     }
 
@@ -24,12 +19,7 @@ const onConnection = (socket) => {
     for(let i = 0; i < existing_rooms.length; i++) {
       const name = existing_rooms[i];
       if(name.slice(0, 6) === "group_") {
-        socket.leave(name, (err) => {
-          if(process.env.NODE_ENV === 'development') {
-            const err_stack = err.stack;
-            console.log(err_stack);
-          }
-        });
+        socket.leaveAll();
       }
     }
   });
