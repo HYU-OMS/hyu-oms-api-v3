@@ -6,10 +6,22 @@ import app from '../app';
 import debug from 'debug';
 import http from 'http';
 import SocketIO from 'socket.io';
+
 import socket_io_functions from '../api_http/v1/socket_io_functions';
+import database_setup from './database_setup';
 
 /* Set timezone to UTC */
 process.env.TZ = 'UTC';
+
+// Create tables on database
+database_setup()
+  .then((result) => {
+    // Do nothing
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(-1);
+  });
 
 const debug_on_listen = debug('hyu-oms-api:server');
 
