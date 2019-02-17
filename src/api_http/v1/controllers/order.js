@@ -374,16 +374,16 @@ router.post('/', async (req, res, next) => {
           await req.db_connection.execute(add_trans_query, add_trans_val);
         }
         else {
-          const update_trans_query = "UPDATE `order_transactions` SET `amount` = `amount` + ? " +
+          const update_trans_query = "UPDATE `order_transactions` SET `amount` = `amount` + ?, `updated_at` = ? " +
             "WHERE `order_id` = ? AND `menu_id` = ?";
-          const update_trans_val = [menu_amount * set_amount, new_order_id, menu_id];
+          const update_trans_val = [menu_amount * set_amount, new Date(), new_order_id, menu_id];
           await req.db_connection.execute(update_trans_query, update_trans_val);
         }
       }
     }
 
-    const update_other_query = "UPDATE `order_transactions` SET `group_id` = ?, `table_id` = ? WHERE `order_id` = ?";
-    const update_other_val = [group_id, table_id, new_order_id];
+    const update_other_query = "UPDATE `order_transactions` SET `group_id` = ?, `table_id` = ?, `updated_at` = ? WHERE `order_id` = ?";
+    const update_other_val = [group_id, table_id, new Date(), new_order_id];
     await req.db_connection.execute(update_other_query, update_other_val);
 
     await req.db_connection.query("COMMIT");
@@ -476,12 +476,13 @@ router.put('/:order_id', async (req, res, next) => {
   try {
     await req.db_connection.query("START TRANSACTION");
 
-    const update_order_query = "UPDATE `orders` SET `status` = ? WHERE `id` = ?";
-    const update_order_val = [order_status, order_id];
+    const update_order_query = "UPDATE `orders` SET `status` = ?, `updated_at` = ? WHERE `id` = ?";
+    const update_order_val = [order_status, new Date(), order_id];
     await req.db_connection.execute(update_order_query, update_order_val);
 
-    const update_order_trans_query = "UPDATE `order_transactions` SET `is_approved` = ? WHERE `order_id` = ?";
-    const update_order_trans_val = [is_approved, order_id];
+    const update_order_trans_query = "UPDATE `order_transactions` SET `is_approved` = ?, `updated_at` = ? " +
+      "WHERE `order_id` = ?";
+    const update_order_trans_val = [is_approved, new Date(), order_id];
     await req.db_connection.execute(update_order_trans_query, update_order_trans_val);
 
     await req.db_connection.query("COMMIT");

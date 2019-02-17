@@ -209,8 +209,8 @@ router.put('/', async (req, res, next) => {
   try {
     await req.db_connection.query("START TRANSACTION");
 
-    const update_member_query = "UPDATE `members` SET `role` = ? WHERE `group_id` = ? AND `user_id` = ?";
-    const update_member_val = [role, group_id, user_id];
+    const update_member_query = "UPDATE `members` SET `role` = ?, `updated_at` = ? WHERE `group_id` = ? AND `user_id` = ?";
+    const update_member_val = [role, new Date(), group_id, user_id];
     await req.db_connection.execute(update_member_query, update_member_val);
 
     await req.db_connection.query("COMMIT");

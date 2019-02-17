@@ -197,8 +197,8 @@ router.put('/:menu_id', async (req, res, next) => {
   try {
     await req.db_connection.query("START TRANSACTION");
 
-    const update_menu_query = "UPDATE `menus` SET `price` = ?, `is_enabled` = ? WHERE `id` = ?";
-    const update_menu_val = [price, is_enabled, menu_id];
+    const update_menu_query = "UPDATE `menus` SET `price` = ?, `is_enabled` = ?, `updated_at` = ? WHERE `id` = ?";
+    const update_menu_val = [price, is_enabled, new Date(), menu_id];
     await req.db_connection.execute(update_menu_query, update_menu_val);
 
     if(is_enabled === 0) {
@@ -208,8 +208,8 @@ router.put('/:menu_id', async (req, res, next) => {
 
       const set_contents = JSON.parse(JSON.stringify(get_sm_rows));
       for(const set_content of set_contents) {
-        const update_sm_query = "UPDATE `setmenus` SET `is_enabled` = 0 WHERE `id` = ?";
-        const update_sm_val = [set_content['set_id']];
+        const update_sm_query = "UPDATE `setmenus` SET `is_enabled` = 0, `updated_at` = ? WHERE `id` = ?";
+        const update_sm_val = [new Date(), set_content['set_id']];
         await req.db_connection.execute(update_sm_query, update_sm_val);
       }
     }

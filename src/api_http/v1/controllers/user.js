@@ -102,8 +102,8 @@ router.post('/', async (req, res, next) => {
     try {
       await req.db_connection.query("START TRANSACTION");
 
-      const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ? WHERE `id` = ?";
-      const update_uuid_val = [auth_uuid, fb_nick, user_data['id']];
+      const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ?, `updated_at` = ? WHERE `id` = ?";
+      const update_uuid_val = [auth_uuid, fb_nick, new Date(), user_data['id']];
       await req.db_connection.execute(update_uuid_query, update_uuid_val);
 
       await req.db_connection.query("COMMIT");
@@ -209,8 +209,8 @@ router.post('/', async (req, res, next) => {
     try {
       await req.db_connection.query("START TRANSACTION");
 
-      const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ? WHERE `id` = ?";
-      const update_uuid_val = [auth_uuid, kakao_nick, user_data['id']];
+      const update_uuid_query = "UPDATE `users` SET `auth_uuid` = ?, `name` = ?, `updated_at` = ? WHERE `id` = ?";
+      const update_uuid_val = [auth_uuid, kakao_nick, new Date(), user_data['id']];
       await req.db_connection.execute(update_uuid_query, update_uuid_val);
 
       await req.db_connection.query("COMMIT");
