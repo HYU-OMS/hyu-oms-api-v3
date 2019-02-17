@@ -42,8 +42,8 @@ const database_setup = async () => {
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  PRIMARY KEY (`id`),\n" +
-        "  KEY `group_creator_id_idx` (`creator_id`),\n" +
-        "  CONSTRAINT `group_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_groups_users1_idx` (`creator_id`),\n" +
+        "  CONSTRAINT `fk_groups_users1` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(groups_query);
 
@@ -52,13 +52,13 @@ const database_setup = async () => {
         "CREATE TABLE IF NOT EXISTS `members` (\n" +
         "  `group_id` int(11) NOT NULL,\n" +
         "  `user_id` int(11) NOT NULL,\n" +
-        "  `role` int(11) NOT NULL DEFAULT '0' COMMENT '0 - Normal\\n1 - Privileged Access??\\n2 - Admin Access',\n" +
+        "  `role` int(11) NOT NULL DEFAULT '0' COMMENT '0 - Normal\\\\n1 - Privileged Access??\\\\n2 - Admin Access',\n" +
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  PRIMARY KEY (`group_id`,`user_id`),\n" +
-        "  KEY `user_id` (`user_id`),\n" +
-        "  CONSTRAINT `member_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `member_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_members_users1_idx` (`user_id`),\n" +
+        "  CONSTRAINT `fk_members_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
+        "  CONSTRAINT `fk_members_users1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(members_query);
 
@@ -74,8 +74,8 @@ const database_setup = async () => {
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  PRIMARY KEY (`id`),\n" +
-        "  KEY `group_id` (`group_id`),\n" +
-        "  CONSTRAINT `menu_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_menus_groups1_idx` (`group_id`),\n" +
+        "  CONSTRAINT `fk_menus_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(menus_query);
 
@@ -90,8 +90,8 @@ const database_setup = async () => {
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  PRIMARY KEY (`id`),\n" +
-        "  KEY `group_id` (`group_id`),\n" +
-        "  CONSTRAINT `setmenu_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_setmenus_groups1_idx` (`group_id`),\n" +
+        "  CONSTRAINT `fk_setmenus_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(setmenus_query);
 
@@ -102,10 +102,10 @@ const database_setup = async () => {
         "  `menu_id` int(11) NOT NULL,\n" +
         "  `amount` int(11) NOT NULL,\n" +
         "  PRIMARY KEY (`set_id`,`menu_id`),\n" +
-        "  KEY `menu_id` (`menu_id`),\n" +
         "  KEY `set_id` (`set_id`),\n" +
-        "  CONSTRAINT `set_menu_id` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `set_target_id` FOREIGN KEY (`set_id`) REFERENCES `setmenus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_set_contents_menus1_idx` (`menu_id`),\n" +
+        "  CONSTRAINT `fk_set_contents_menus1` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
+        "  CONSTRAINT `fk_set_contents_setmenus1` FOREIGN KEY (`set_id`) REFERENCES `setmenus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(set_contents_query);
 
@@ -123,10 +123,10 @@ const database_setup = async () => {
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  PRIMARY KEY (`id`),\n" +
-        "  KEY `groupId_status_id` (`group_id`,`status`,`id`),\n" +
-        "  KEY `user_id` (`user_id`),\n" +
-        "  CONSTRAINT `order_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `order_user_id` FOREIGN KEY (`user_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `fk_orders_users1_idx` (`user_id`),\n" +
+        "  KEY `fk_orders_groups1_idx` (`group_id`),\n" +
+        "  CONSTRAINT `fk_orders_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
+        "  CONSTRAINT `fk_orders_users1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(orders_query);
 
@@ -142,12 +142,13 @@ const database_setup = async () => {
         "  `is_delivered` tinyint(1) NOT NULL DEFAULT '0',\n" +
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-        "  PRIMARY KEY (`order_id`,`menu_id`),\n" +
+        "  PRIMARY KEY (`order_id`,`menu_id`,`group_id`),\n" +
         "  KEY `remain_queue_chk` (`group_id`,`is_approved`,`is_delivered`),\n" +
-        "  KEY `trans_menu_id_idx` (`menu_id`),\n" +
-        "  CONSTRAINT `trans_group_id` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `trans_menu_id` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `trans_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
+        "  KEY `order_id_idx` (`order_id`),\n" +
+        "  KEY `fk_order_transactions_menus1_idx` (`menu_id`),\n" +
+        "  CONSTRAINT `fk_order_transactions_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
+        "  CONSTRAINT `fk_order_transactions_menus1` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
+        "  CONSTRAINT `fk_order_transactions_orders1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;";
       await db_connection.query(order_transactions_query);
 
