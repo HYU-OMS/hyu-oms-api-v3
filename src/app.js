@@ -37,12 +37,6 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// SocketIO connection object 를 assign.
-app.use(async (req, res, next) => {
-  req.io = app.get('io');
-  next();
-});
-
 // DB connection 을 release 하기 위해 Event Listener 등록
 app.use(async (req, res, next) => {
   // response 를 전송하지 못했을 경우.

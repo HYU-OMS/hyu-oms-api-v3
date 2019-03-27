@@ -150,17 +150,6 @@ router.put('/', async (req, res, next) => {
   const [menu_chk_rows, menu_chk_fields] = await req.db_connection.execute(menu_chk_query, menu_chk_val);
 
   const menu_name = menu_chk_rows[0]['name'];
-
-  // Socket.IO emit
-  const io = req.io;
-  const room_name = "group_" + group_id.toString();
-  const data = {
-    "order_id": order_id,
-    "table_name": table_name,
-    "menu_name": menu_name
-  };
-
-  io.volatile.to(room_name).emit('queue_removed', data);
 });
 
 export default router;

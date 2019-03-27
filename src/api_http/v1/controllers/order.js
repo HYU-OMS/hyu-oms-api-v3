@@ -400,17 +400,6 @@ router.post('/', async (req, res, next) => {
     "order_id": new_order_id,
     "total_price": total_price
   });
-
-  // Socket.IO emit
-  const io = req.io;
-  const room_name = "group_" + group_id.toString();
-  const data = {
-    "order_id": new_order_id,
-    "price": total_price,
-    "table_name": table_id
-  };
-
-  io.volatile.to(room_name).emit('order_added', data);
 });
 
 router.put('/:order_id', async (req, res, next) => {
@@ -499,21 +488,6 @@ router.put('/:order_id', async (req, res, next) => {
     "order_id": order_id,
     "is_approved": is_approved
   });
-
-  // Socket.IO emit
-  const io = req.io;
-  const room_name = "group_" + group_id.toString();
-  const data = {
-    "order_id": order_id,
-    "table_name": table_name,
-    "is_approved": (is_approved === 1)
-  };
-
-  io.volatile.to(room_name).emit('order_verified', data);
-
-  if(is_approved === 1) {
-    io.volatile.to(room_name).emit('queue_added', data);
-  }
 });
 
 export default router;

@@ -5,9 +5,7 @@
 import app from '../app';
 import debug from 'debug';
 import http from 'http';
-import SocketIO from 'socket.io';
 
-import socket_io_functions from '../api_http/v1/socket_io_functions';
 import database_setup from './database_setup';
 
 /* Set timezone to UTC */
@@ -93,14 +91,10 @@ const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server and SocketIO
+ * Create HTTP server
  */
 
 const server = http.createServer(app);
-const io = new SocketIO(server);
-
-io.on('connection', socket_io_functions);
-app.set('io', io);
 
 /**
  * Listen on provided port, on all network interfaces.

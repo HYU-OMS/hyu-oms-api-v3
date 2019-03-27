@@ -189,16 +189,6 @@ router.post('/', async (req, res, next) => {
   res.json({
     "setmenu_id": new_setmenu_id
   });
-
-  // Socket.IO emit
-  const io = req.io;
-  const room_name = "group_" + group_id.toString();
-  const data = {
-    "name": name,
-    "price": price
-  };
-
-  io.volatile.to(room_name).emit('setmenu_added', data);
 });
 
 router.put('/:setmenu_id', async (req, res, next) => {
@@ -281,17 +271,6 @@ router.put('/:setmenu_id', async (req, res, next) => {
   res.json({
     "setmenu_id": setmenu_id
   });
-
-  // Socket.IO emit
-  const io = req.io;
-  const room_name = "group_" + group_id.toString();
-  const data = {
-    "name": name,
-    "price": price,
-    "is_enabled": (is_enabled === 1)
-  };
-
-  io.volatile.to(room_name).emit('setmenu_changed', data);
 });
 
 export default router;
