@@ -7,9 +7,34 @@ import debug from 'debug';
 import http from 'http';
 
 import database_setup from './database_setup';
+import config from '../config';
 
 /* Set timezone to UTC */
 process.env.TZ = 'UTC';
+
+/* MySQL config variable check */
+const v1_mysql = config['v1']['mysql'];
+if(v1_mysql['host'] === "" || v1_mysql['user'] === "" || v1_mysql['password'] === "" || v1_mysql['database'] === "") {
+  const err = new Error("MySQL environment variables are empty. Please set these variables.");
+  console.error(err);
+  process.exit(-1);
+}
+
+/* JWT config variable check */
+const v1_jwt = config['v1']['jwt'];
+if(v1_jwt['secret_key'] === "") {
+  const err = new Error("JWT secret key is empty. Please set this variable.");
+  console.error(err);
+  process.exit(-1);
+}
+
+/* AES config variable check */
+const v1_aes = config['v1']['aes'];
+if(v1_aes['key'] === "") {
+  const err = new Error("AES key is empty. Please set this variable.");
+  console.error(err);
+  process.exit(-1);
+}
 
 // Create tables on database
 database_setup()
