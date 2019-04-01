@@ -150,6 +150,33 @@ const database_setup = async () => {
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
       await db_connection.query(order_transactions_query);
 
+      const logs_query = "" +
+        "CREATE TABLE IF NOT EXISTS `logs` (\n" +
+        "  `unix_time` int(11) NOT NULL,\n" +
+        "  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `is_error` tinyint(1) NOT NULL DEFAULT '0',\n" +
+        "  `headers` text COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `client_ip` varchar(127) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `client_forwarded_ips` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
+        "  `method` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `original_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `url_query` text COLLATE utf8mb4_unicode_ci,\n" +
+        "  `req_body` text COLLATE utf8mb4_unicode_ci,\n" +
+        "  PRIMARY KEY (`unix_time`,`uuid`),\n" +
+        "  KEY `is_error_idx` (`is_error`)\n" +
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+      await db_connection.query(logs_query);
+
+      const errors_query = "" +
+        "CREATE TABLE IF NOT EXISTS `errors` (\n" +
+        "  `unix_time` int(11) NOT NULL,\n" +
+        "  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `status_code` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `message` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n" +
+        "  `stack` mediumtext COLLATE utf8mb4_unicode_ci,\n" +
+        "  PRIMARY KEY (`unix_time`,`uuid`)\n" +
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
       db_connection.end();
     } catch(err) {
       if(db_connection !== undefined) {

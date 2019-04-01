@@ -4,6 +4,7 @@ import asyncify from 'express-asyncify';
 import cors from 'cors';
 import logger from 'morgan';
 import helmet from 'helmet';
+import uuidv4 from 'uuid/v4';
 
 import http_api_v1 from './api_http/v1';
 import mysql from "mysql2/promise";
@@ -16,6 +17,7 @@ if(process.env.NODE_ENV === 'development') {
   app.use(logger('dev'));
 }
 
+app.enable("trust proxy");
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
@@ -39,17 +41,68 @@ app.use(async (req, res, next) => {
 
 // DB connection 을 release 하기 위해 Event Listener 등록
 app.use(async (req, res, next) => {
+  const headers = JSON.stringify(req.headers);
+  const client_ip = req.ip;
+  const client_forwarded_ips = JSON.stringify(req.ips);
+  const http_method = req.method;
+  const original_url = req.originalUrl;
+  const url_query = JSON.stringify(req.query);
+  const req_body = JSON.stringify(req.body);
+
+  const unix_time = parseInt((Math.round(Date.now() / 1000)).toString(), 10);
+  const uuid = uuidv4();
+
+  req.log_unix_time = unix_time;
+  req.log_uuid = uuid;
+
   // response 를 전송하지 못했을 경우.
   res.on('close', async () => {
-    if(Boolean(req.db_connection) !== false) {
-      req.db_connection.destroy();
+    try {
+      if(Boolean(req.db_connection) !== false) {
+        const log_query = "INSERT INTO `logs` SET " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = 1, `headers` = ?, " +
+          "`client_ip` = ?, `client_forwarded_ips` = ?, " +
+          "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
+        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+          http_method, original_url, url_query, req_body];
+        await req.db_connection.execute(log_query, log_val);
+
+        req.db_connection.destroy();
+      }
+      else {
+        req.db_connection = await req.db_pool.getConnection();
+
+        const log_query = "INSERT INTO `logs` SET " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = 1, `headers` = ?, " +
+          "`client_ip` = ?, `client_forwarded_ips` = ?, " +
+          "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
+        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+          http_method, original_url, url_query, req_body];
+        await req.db_connection.execute(log_query, log_val);
+
+        req.db_connection.destroy();
+      }
+    } catch(err) {
+      next(err);
     }
   });
 
   // response 가 정상적으로 전송된 경우.
   res.on('finish', async () => {
-    if(Boolean(req.db_connection) !== false) {
-      req.db_connection.release();
+    try {
+      if(Boolean(req.db_connection) !== false) {
+        const log_query = "INSERT INTO `logs` SET " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = 0, `headers` = ?, " +
+          "`client_ip` = ?, `client_forwarded_ips` = ?, " +
+          "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
+        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+          http_method, original_url, url_query, req_body];
+        await req.db_connection.execute(log_query, log_val);
+
+        req.db_connection.release();
+      }
+    } catch(err) {
+      next(err);
     }
   });
 
@@ -70,11 +123,6 @@ app.use(async (req, res, next) => {
 app.use(async (err, req, res, next) => {
   const status_code = err.status || 500;
 
-  // 혹시 연결이 남아있을수도 있으므로 destroy 를 진행. (이렇게 하는게 맞나?)
-  if(Boolean(req.db_connection) !== false) {
-    req.db_connection.destroy();
-  }
-
   /* Development 일 경우 console 과 response 에 error 표시 */
   let err_stack = undefined;
   if(process.env.NODE_ENV === 'development') {
@@ -93,6 +141,19 @@ app.use(async (err, req, res, next) => {
   else {
     res.status(status_code);
     res.json(err);
+  }
+
+  // 혹시 연결이 남아있을수도 있으므로 destroy 를 진행. (이렇게 하는게 맞나?)
+  if(Boolean(req.db_connection) !== false) {
+    try {
+      const err_query = "INSERT INTO `errors` SET `unix_time` = ?, `uuid` = ?, `status_code` = ?, `message` = ?, `stack` = ?";
+      const err_val = [req.log_unix_time, req.log_uuid, status_code, err.message, err.stack];
+      await req.db_connection.execute(err_query, err_val);
+
+      req.db_connection.destroy();
+    } catch(err) {
+      throw err;
+    }
   }
 });
 
