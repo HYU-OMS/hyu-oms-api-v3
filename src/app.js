@@ -54,6 +54,7 @@ app.use(async (req, res, next) => {
 
   req.log_unix_time = unix_time;
   req.log_uuid = uuid;
+  req.is_error = false;
 
   // response 를 전송하지 못했을 경우.
   res.on('close', async () => {
@@ -83,7 +84,7 @@ app.use(async (req, res, next) => {
         req.db_connection.destroy();
       }
     } catch(err) {
-      next(err);
+      console.error(err.stack);
     }
   });
 
@@ -92,17 +93,17 @@ app.use(async (req, res, next) => {
     try {
       if(Boolean(req.db_connection) !== false) {
         const log_query = "INSERT INTO `logs` SET " +
-          "`unix_time` = ?, `uuid` = ?, `is_error` = 0, `headers` = ?, " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = ?, `headers` = ?, " +
           "`client_ip` = ?, `client_forwarded_ips` = ?, " +
           "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
-        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+        const log_val = [unix_time, uuid, (req.is_error === true) ? 1 : 0, headers, client_ip, client_forwarded_ips,
           http_method, original_url, url_query, req_body];
         await req.db_connection.execute(log_query, log_val);
 
         req.db_connection.release();
       }
     } catch(err) {
-      next(err);
+      console.error(err.stack);
     }
   });
 
@@ -122,12 +123,20 @@ app.use(async (req, res, next) => {
 // error handler
 app.use(async (err, req, res, next) => {
   const status_code = err.status || 500;
+  req.is_error = true;
 
-  /* Development 일 경우 console 과 response 에 error 표시 */
-  let err_stack = undefined;
-  if(process.env.NODE_ENV === 'development') {
-    err_stack = err.stack;
-    console.log(err_stack);
+  /* 콘솔에 error 표시 */
+  console.error(err.stack);
+
+  // Error Log
+  if(Boolean(req.db_connection) !== false) {
+    try {
+      const err_query = "INSERT INTO `errors` SET `unix_time` = ?, `uuid` = ?, `status_code` = ?, `message` = ?, `stack` = ?";
+      const err_val = [req.log_unix_time, req.log_uuid, status_code, err.message, err.stack];
+      await req.db_connection.execute(err_query, err_val);
+    } catch(err) {
+      console.error(err.stack);
+    }
   }
 
   if(parseInt((status_code / 10).toString(), 10) === 50) {
@@ -135,25 +144,12 @@ app.use(async (err, req, res, next) => {
     res.json({
       message: 'Internal server error',
       state: err.state || undefined,
-      stack: err_stack
+      stack: err.stack
     });
   }
   else {
     res.status(status_code);
     res.json(err);
-  }
-
-  // 혹시 연결이 남아있을수도 있으므로 destroy 를 진행. (이렇게 하는게 맞나?)
-  if(Boolean(req.db_connection) !== false) {
-    try {
-      const err_query = "INSERT INTO `errors` SET `unix_time` = ?, `uuid` = ?, `status_code` = ?, `message` = ?, `stack` = ?";
-      const err_val = [req.log_unix_time, req.log_uuid, status_code, err.message, err.stack];
-      await req.db_connection.execute(err_query, err_val);
-
-      req.db_connection.destroy();
-    } catch(err) {
-      throw err;
-    }
   }
 });
 
