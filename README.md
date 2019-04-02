@@ -47,6 +47,19 @@
 mysql database 는 사전에 생성이 되어 있어야 하며 지정한 유저가 해당 DB 에 대해서 `SELECT`, `INSERT`, `UPDATE`, `DELETE` Query 를 할 수 있도록 권한이 지정되어 있어야 합니다.  
 서버가 시작하게 되면 필요한 테이블이 자동으로 생성되게 됩니다.
 
+#### 서버 시작하기 (Development)
+```sh
+$ npm install
+$ PORT=[YOUR_CUSTOM_PORT_NUM] npm run start-dev
+```
+
+#### 서버 시작하기 (Production)
+```sh
+$ npm install
+$ PORT=[YOUR_CUSTOM_PORT_NUM] npm start
+```
+`npm start` 명령은 `npm run build` 를 우선 시행하게 되며 이 명령의 결과로 build directory 가 생성되게 됩니다.
+
 #### 기타 안내
  - 서버는 UTC timezone 을 사용하도록 하드코딩 되어 있습니다. (`/src/scripts/run.js` 의 13번째 줄 참고)
  - Environment Variable `PORT` 값을 지정하지 않을 경우 3000번 포트에서 서버가 가동이 되게 됩니다.
