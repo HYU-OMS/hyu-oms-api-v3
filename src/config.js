@@ -14,7 +14,7 @@ const config = {
       "algorithm": (process.env.API_V1_JWT_ALGORITHM || "HS512")
     },
     "aes": {
-      "key": (process.env.API_V1_AES_KEY || "USE_YOUR_AES_KEY")
+      "key": (process.env.API_V1_AES_KEY || "")
     }
   }
 };
