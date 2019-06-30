@@ -1,4 +1,4 @@
-# HYU-OMS API
+# HYU-OMS API Version 3
 
 한양대학교 주문관리시스템은 2014년도에 처음 만들어진 후 매년 학교 축제 주점에서 사용되고 있습니다.  
 본 Repository 는 API 서버 코드입니다.
