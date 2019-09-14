@@ -8,10 +8,10 @@ const database_setup = async () => {
     let db_connection = undefined;
     try {
       db_connection = await mysql.createConnection({
-        host: config['v1']['mysql']['host'],
-        database: config['v1']['mysql']['database'],
-        user: config['v1']['mysql']['user'],
-        password: config['v1']['mysql']['password']
+        host: config['v3']['mysql']['host'],
+        database: config['v3']['mysql']['database'],
+        user: config['v3']['mysql']['user'],
+        password: config['v3']['mysql']['password']
       });
 
       // Create `users` table

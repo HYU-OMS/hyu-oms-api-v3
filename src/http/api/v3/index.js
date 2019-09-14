@@ -43,7 +43,7 @@ app.use(async (req, res, next) => {
 
     let decoded_token = undefined;
     try {
-      decoded_token = jwt.verify(token, config['v1']['jwt']['secret_key']);
+      decoded_token = jwt.verify(token, config['v3']['jwt']['secret_key']);
     } catch (err) {
       switch (err.name) {
         case 'TokenExpiredError':

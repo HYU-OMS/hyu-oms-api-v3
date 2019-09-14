@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const config = require('../../../../config');
 
-const jwt_config = config['v1']['jwt'];
+const jwt_config = config['v3']['jwt'];
 const router = asyncify(express.Router());
 
 router.post('/', async (req, res, next) => {

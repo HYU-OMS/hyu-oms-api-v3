@@ -44,7 +44,7 @@ router.get('/', async (req, res, next) => {
   const [items, paging] = await group_pagination.getResult();
 
   // Signup code 복호화
-  const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+  const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
   for(const item of items) {
     if(item['signup_code'] !== null) {
       let signup_code = decipher.update(item['signup_code'], 'base64', 'utf-8');
@@ -136,7 +136,7 @@ router.put('/:group_id', async (req, res, next) => {
   if(Boolean(content['code']) === true) {
     signup_code = content['code'];
 
-    const cipher = crypto.createCipher('aes-256-cbc', config['v1']['aes']['key']);
+    const cipher = crypto.createCipher('aes-256-cbc', config['v3']['aes']['key']);
     signup_code = cipher.update(signup_code, 'utf8', 'base64');
     signup_code += cipher.final('base64');
   }
@@ -177,7 +177,7 @@ router.put('/:group_id', async (req, res, next) => {
   }
 
   if(signup_code !== null) {
-    const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+    const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
     signup_code = decipher.update(signup_code, 'base64', 'utf-8');
     signup_code += decipher.final('utf-8');
   }

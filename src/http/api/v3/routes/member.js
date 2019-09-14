@@ -94,7 +94,7 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const decipher = crypto.createDecipher('aes-256-cbc', config['v1']['aes']['key']);
+  const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
   signup_code_in_database = decipher.update(signup_code_in_database, 'base64', 'utf-8');
   signup_code_in_database += decipher.final('utf-8');
 

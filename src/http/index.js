@@ -28,12 +28,12 @@ app.use(express.urlencoded({ extended: false }));
 
 // MySQL pool 관련 정보 지정
 app.set("mysql_pool", mysql.createPool({
-  connectionLimit: config['v1']['mysql']['connection_limit'],
-  host: config['v1']['mysql']['host'],
-  database: config['v1']['mysql']['database'],
-  user: config['v1']['mysql']['user'],
-  password: config['v1']['mysql']['password'],
-  waitForConnections: config['v1']['mysql']['wait_for_connections']
+  connectionLimit: config['v3']['mysql']['connection_limit'],
+  host: config['v3']['mysql']['host'],
+  database: config['v3']['mysql']['database'],
+  user: config['v3']['mysql']['user'],
+  password: config['v3']['mysql']['password'],
+  waitForConnections: config['v3']['mysql']['wait_for_connections']
 }));
 
 // DB pool object 를 req object 에 assign 한다.
