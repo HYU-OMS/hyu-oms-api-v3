@@ -3,7 +3,6 @@
 const createError = require('http-errors');
 const express = require('express');
 const asyncify = require('express-asyncify');
-const crypto = require('crypto');
 
 const config = require('../../../../config');
 
@@ -70,8 +69,6 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  const signup_code_requested = content['code'] || null;
-
   // DB Connection 생성 후 req object에 assign.
   req.db_connection = await req.db_pool.getConnection();
 
@@ -86,25 +83,6 @@ router.post('/', async (req, res, next) => {
     });
   }
 
-  let signup_code_in_database = group_chk_rows[0]['signup_code'];
-  if(Boolean(signup_code_in_database) === false) {
-    throw createError(403, "Sign-up is currently disabled for this group.", {
-      state: 'SIGNUP_DISABLED_ERR',
-      info: ['group_id']
-    });
-  }
-
-  const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
-  signup_code_in_database = decipher.update(signup_code_in_database, 'base64', 'utf-8');
-  signup_code_in_database += decipher.final('utf-8');
-
-  if(signup_code_in_database !== signup_code_requested) {
-    throw createError(403, "Invalid code for this 'group_id'", {
-      state: 'INVALID_CODE_ERR',
-      info: ['group_id', 'code']
-    });
-  }
-
   const member_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ?";
   const member_chk_val = [group_id, req.user_info['user_id']];
   const [member_rows, member_fields] = await req.db_connection.execute(member_chk_query, member_chk_val);
@@ -112,6 +90,17 @@ router.post('/', async (req, res, next) => {
   if(member_rows.length !== 0) {
     throw createError(403, "Existing member in this group.", {
       state: 'EXISTING_MEMBER_ERR',
+      info: ['group_id']
+    });
+  }
+
+  const chk_reg_allowed_q = "SELECT * FROM `groups` WHERE `id` = ? AND `is_enabled` = 1 AND `allow_register` = 1";
+  const chk_reg_allowed_v = [group_id];
+  const [chk_reg_rows, chk_reg_fields] = await req.db_connection.execute(chk_reg_allowed_q, chk_reg_allowed_v);
+
+  if(chk_reg_rows.length === 0) {
+    throw createError(403, "Unable to register in this group.", {
+      state: 'REGISTER_DISALLOWED',
       info: ['group_id']
     });
   }

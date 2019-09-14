@@ -3,7 +3,6 @@
 const createError = require('http-errors');
 const express = require('express');
 const asyncify = require('express-asyncify');
-const crypto = require('crypto');
 
 const Pagination = require('../modules/pagination');
 const config = require('../../../../config');
@@ -18,21 +17,50 @@ router.get('/', async (req, res, next) => {
     });
   }
   
-  let page = req.query['page'];
-  if(Boolean(page) === false || isNaN(page) || page < 1) {
-    page = 1;
+  let page_r = req.query['page_r'];
+  if(Boolean(page_r) === false || isNaN(page_r) || page_r < 1) {
+    page_r = 1;
   }
-  
-  const fetch_q = " SELECT `groups`.`id`, `groups`.`name`, `groups`.`creator_id`, " +
-    "`groups`.`signup_code`, `groups`.`created_at`, `members`.`role` FROM `groups` " +
-    "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
-    "WHERE `members`.`user_id` = ? AND `groups`.`is_enabled` = 1 ";
-  const count_q = " SELECT COUNT(`groups`.`id`) AS `cnt` FROM `groups` " +
-    "JOIN `members` ON `groups`.`id` = `members`.`group_id` " +
-    "WHERE `members`.`user_id` = ? ";
-  const order_q = " ORDER BY `groups`.`id` ASC ";
-  
-  const fetch_params = {
+
+  let page_ur = req.query['page_ur'];
+  if(Boolean(page_ur) === false || isNaN(page_ur) || page_ur < 1) {
+    page_ur = 1;
+  }
+
+  const fetch_q_r = " " +
+    "SELECT `g`.`id`, `g`.`name`, `g`.`created_at`, `m`.`role` " +
+    "FROM `groups` `g` " +
+    "JOIN `members` `m` " +
+    "ON `g`.`id` = `m`.`group_id` " +
+    "WHERE " +
+    "`g`.`is_enabled` = 1 AND `m`.`user_id` = ?";
+  const count_q_r = " " +
+    "SELECT COUNT(`g`.`id`) AS `cnt` " +
+    "FROM `groups` `g` " +
+    "JOIN `members` `m` " +
+    "ON `g`.`id` = `m`.`group_id` " +
+    "WHERE " +
+    "`g`.`is_enabled` = 1 AND `m`.`user_id` = ?";
+  const order_q_r = " ORDER BY `g`.`id` DESC ";
+
+  const fetch_params_r = {
+    fetch: [req.user_info['user_id']],
+    count: [req.user_info['user_id']]
+  };
+
+  const fetch_q_ur = " " +
+    "SELECT `g`.`id`, `g`.`name`, `g`.`created_at` " +
+    "FROM `groups` `g` " +
+    "WHERE `g`.`is_enabled` = 1 AND `g`.`allow_register` = 1 " +
+    "AND NOT EXISTS(SELECT * FROM `members` `m` WHERE `m`.`user_id` = ? AND `m`.`group_id` = `g`.`id`)";
+  const count_q_ur = " " +
+    "SELECT COUNT(`g`.`id`) AS `cnt` " +
+    "FROM `groups` `g` " +
+    "WHERE `g`.`is_enabled` = 1 AND `g`.`allow_register` = 1 " +
+    "AND NOT EXISTS(SELECT * FROM `members` `m` WHERE `m`.`user_id` = ? AND `m`.`group_id` = `g`.`id`)";
+  const order_q_ur = " ORDER BY `g`.`id` DESC ";
+
+  const fetch_params_ur = {
     fetch: [req.user_info['user_id']],
     count: [req.user_info['user_id']]
   };
@@ -40,24 +68,22 @@ router.get('/', async (req, res, next) => {
   // DB Connection 생성 후 req object 에 assign.
   req.db_connection = await req.db_pool.getConnection();
 
-  const group_pagination = new Pagination(fetch_q, count_q, order_q, page, req.db_connection, fetch_params);
-  const [items, paging] = await group_pagination.getResult();
+  const group_pagination_r = new Pagination(fetch_q_r, count_q_r, order_q_r, page_r, req.db_connection, fetch_params_r);
+  const [items_r, paging_r] = await group_pagination_r.getResult();
 
-  // Signup code 복호화
-  const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
-  for(const item of items) {
-    if(item['signup_code'] !== null) {
-      let signup_code = decipher.update(item['signup_code'], 'base64', 'utf-8');
-      signup_code += decipher.final('utf-8');
+  const group_pagination_ur = new Pagination(fetch_q_ur, count_q_ur, order_q_ur, page_ur, req.db_connection, fetch_params_ur);
+  const [items_ur, paging_ur] = await group_pagination_ur.getResult();
 
-      item['signup_code'] = signup_code;
-    }
-  }
-  
   res.status(200);
   res.json({
-    list: items,
-    pagination: paging
+    registered: {
+      list: items_r,
+      pagination: paging_r
+    },
+    unregistered: {
+      list: items_ur,
+      pagination: paging_ur
+    }
   });
 });
 
@@ -114,6 +140,7 @@ router.post('/', async (req, res, next) => {
   });
 });
 
+//TODO: crypto 관련 이전 코드 제거
 router.put('/:group_id', async (req, res, next) => {
   if(Boolean(req.user_info) === false) {
     throw createError(401, "JWT must be provided!", {
