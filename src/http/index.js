@@ -1,6 +1,6 @@
 "use strict";
 
-const creatError = require('http-errors');
+const createError = require('http-errors');
 const express = require('express');
 const asyncify = require('express-asyncify');
 const cors = require('cors');
@@ -8,9 +8,10 @@ const logger = require('morgan');
 const helmet = require('helmet');
 const uuidv4 = require('uuid/v4');
 const mysql = require('mysql2/promise');
+const http = require('http');
 
 const api_v3 = require('./api/v3');
-const config = require('./config');
+const config = require('../config');
 
 const app = asyncify(express());
 
@@ -155,4 +156,6 @@ app.use(async (err, req, res, next) => {
   }
 });
 
-module.exports = app;
+/* Create HTTP server and export for default module. */
+const server = http.createServer(app);
+module.exports = server;

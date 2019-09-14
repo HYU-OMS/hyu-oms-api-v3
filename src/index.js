@@ -4,12 +4,10 @@
  * Module dependencies.
  */
 
-const app = require('../app');
 const debug = require('debug');
-const http = require('http');
 
 const database_setup = require('./database_setup');
-const config = require('../config');
+const config = require('./config');
 
 /* Set timezone to UTC */
 process.env.TZ = 'UTC';
@@ -115,13 +113,12 @@ const onListening = () => {
  */
 
 const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
 
 /**
  * Create HTTP server
  */
 
-const server = http.createServer(app);
+const server = require('./http');
 
 /**
  * Listen on provided port, on all network interfaces.

@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "HYU-OMS API",
   "scripts": {
-    "start-dev": "DEBUG=hyu-oms-api:* NODE_ENV=development babel-node src/scripts/run.js",
-    "start": "npm run build && cd build && NODE_ENV=production node scripts/run.js",
-    "build": "NODE_ENV=production babel src -d build && cp -rf node_modules build/node_modules"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

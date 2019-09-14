@@ -5,7 +5,7 @@ const express = require('express');
 const asyncify = require('express-asyncify');
 const crypto = require('crypto');
 
-const config = require('../../../config');
+const config = require('../../../../config');
 
 const router = asyncify(express.Router());
 

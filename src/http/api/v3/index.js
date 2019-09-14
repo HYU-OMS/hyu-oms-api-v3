@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 
-const config = require('../../config');
+const config = require('../../../config');
 
 const user_route = require('./routes/user');
 const group_route = require('./routes/group');

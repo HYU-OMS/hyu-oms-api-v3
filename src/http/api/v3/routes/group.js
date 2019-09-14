@@ -6,7 +6,7 @@ const asyncify = require('express-asyncify');
 const crypto = require('crypto');
 
 const Pagination = require('../modules/pagination');
-const config = require('../../../config');
+const config = require('../../../../config');
 
 const router = asyncify(express.Router());
 

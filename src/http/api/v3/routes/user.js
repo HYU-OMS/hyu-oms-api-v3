@@ -7,7 +7,7 @@ const rp = require('request-promise-native');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
 
-const config = require('../../../config');
+const config = require('../../../../config');
 
 const jwt_config = config['v1']['jwt'];
 const router = asyncify(express.Router());

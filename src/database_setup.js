@@ -1,7 +1,7 @@
 "use strict";
 
 const mysql = require('mysql2/promise');
-const config = require('../config');
+const config = require('./config');
 
 const database_setup = async () => {
   return new Promise(async (resolve, reject) => {
