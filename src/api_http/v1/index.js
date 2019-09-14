@@ -1,20 +1,22 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
-import helmet from 'helmet';
-import mysql from 'mysql2/promise';
-import jwt from 'jsonwebtoken';
+"use strict";
 
-import config from '../../config';
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+const helmet = require('helmet');
+const mysql = require('mysql2/promise');
+const jwt = require('jsonwebtoken');
 
-import user_controller from './controllers/user';
-import group_controller from './controllers/group';
-import member_controller from './controllers/member';
-import menu_controller from './controllers/menu';
-import setmenu_controller from './controllers/setmenu';
-import order_controller from './controllers/order';
-import queue_controller from './controllers/queue';
-import download_controller from './controllers/download';
+const config = require('../../config');
+
+const user_route = require('./routes/user');
+const group_route = require('./routes/group');
+const member_route = require('./routes/member');
+const menu_route = require('./routes/menu');
+const setmenu_route = require('./routes/setmenu');
+const order_route = require('./routes/order');
+const queue_route = require('./routes/queue');
+const download_route = require('./routes/download');
 
 const app = asyncify(express());
 
@@ -70,14 +72,14 @@ app.use(async (req, res, next) => {
 });
 
 // Controllers
-app.use("/user", user_controller);
-app.use("/group", group_controller);
-app.use("/member", member_controller);
-app.use("/menu", menu_controller);
-app.use("/setmenu", setmenu_controller);
-app.use("/order", order_controller);
-app.use("/queue", queue_controller);
-app.use("/download", download_controller);
+app.use("/user", user_route);
+app.use("/group", group_route);
+app.use("/member", member_route);
+app.use("/menu", menu_route);
+app.use("/setmenu", setmenu_route);
+app.use("/order", order_route);
+app.use("/queue", queue_route);
+app.use("/download", download_route);
 
 // 서버 Alive 체크를 위한 것
 app.get("/", async (req, res, next) => {
@@ -87,4 +89,4 @@ app.get("/", async (req, res, next) => {
   });
 });
 
-export default app;
+module.exports = app;

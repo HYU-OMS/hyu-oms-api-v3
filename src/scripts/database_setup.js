@@ -1,5 +1,7 @@
-import mysql from "mysql2/promise";
-import config from '../config';
+"use strict";
+
+const mysql = require('mysql2/promise');
+const config = require('../config');
 
 const database_setup = async () => {
   return new Promise(async (resolve, reject) => {
@@ -187,4 +189,4 @@ const database_setup = async () => {
   });
 };
 
-export default database_setup;
+module.exports = database_setup;

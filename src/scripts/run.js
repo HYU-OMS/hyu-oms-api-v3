@@ -1,13 +1,15 @@
+"use strict";
+
 /**
  * Module dependencies.
  */
 
-import app from '../app';
-import debug from 'debug';
-import http from 'http';
+const app = require('../app');
+const debug = require('debug');
+const http = require('http');
 
-import database_setup from './database_setup';
-import config from '../config';
+const database_setup = require('./database_setup');
+const config = require('../config');
 
 /* Set timezone to UTC */
 process.env.TZ = 'UTC';

@@ -1,14 +1,16 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
-import cors from 'cors';
-import logger from 'morgan';
-import helmet from 'helmet';
-import uuidv4 from 'uuid/v4';
+"use strict";
 
-import http_api_v1 from './api_http/v1';
-import mysql from "mysql2/promise";
-import config from "./config";
+const creatError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+const cors = require('cors');
+const logger = require('morgan');
+const helmet = require('helmet');
+const uuidv4 = require('uuid/v4');
+const mysql = require('mysql2/promise');
+
+const http_api_v1 = require('./api_http/v1');
+const config = require('./config');
 
 const app = asyncify(express());
 
@@ -153,4 +155,4 @@ app.use(async (err, req, res, next) => {
   }
 });
 
-export default app;
+module.exports = app;

@@ -1,3 +1,5 @@
+"use strict";
+
 /* 반드시 Environment Variable 을 통해서 값을 지정할 수 있도록 한다. */
 const config = {
   "v1": {
@@ -19,4 +21,4 @@ const config = {
   }
 };
 
-export default config;
+module.exports = config;

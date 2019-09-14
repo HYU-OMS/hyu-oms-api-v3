@@ -1,6 +1,8 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
+"use strict";
+
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
 
 const router = asyncify(express.Router());
 
@@ -152,4 +154,4 @@ router.put('/', async (req, res, next) => {
   const menu_name = menu_chk_rows[0]['name'];
 });
 
-export default router;
+module.exports = router;

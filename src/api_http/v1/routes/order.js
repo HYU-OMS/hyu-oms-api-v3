@@ -1,8 +1,10 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
+"use strict";
 
-import Pagination from '../modules/pagination';
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+
+const Pagination = require('../modules/pagination');
 
 const router = asyncify(express.Router());
 
@@ -490,4 +492,4 @@ router.put('/:order_id', async (req, res, next) => {
   });
 });
 
-export default router;
+module.exports = router;

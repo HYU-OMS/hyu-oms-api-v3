@@ -1,11 +1,13 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
-import rp from 'request-promise-native';
-import uuidv4 from 'uuid/v4';
-import jwt from 'jsonwebtoken';
+"use strict";
 
-import config from '../../../config';
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+const rp = require('request-promise-native');
+const uuidv4 = require('uuid/v4');
+const jwt = require('jsonwebtoken');
+
+const config = require('../../../config');
 
 const jwt_config = config['v1']['jwt'];
 const router = asyncify(express.Router());
@@ -239,4 +241,4 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-export default router;
+module.exports = router;

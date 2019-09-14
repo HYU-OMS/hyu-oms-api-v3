@@ -1,10 +1,12 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
-import crypto from 'crypto';
+"use strict";
 
-import Pagination from '../modules/pagination';
-import config from '../../../config';
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+const crypto = require('crypto');
+
+const Pagination = require('../modules/pagination');
+const config = require('../../../config');
 
 const router = asyncify(express.Router());
 
@@ -247,4 +249,4 @@ router.delete('/:group_id', async (req, res, next) => {
   });
 });
 
-export default router;
+module.exports = router;

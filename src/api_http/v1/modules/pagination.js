@@ -1,3 +1,5 @@
+"use strict";
+
 class Pagination {
   constructor(fetch_q, count_q, order_q, current_page, connection, fetch_params = null, list_num = 10, page_num = 4) {
     this.connection = connection;
@@ -61,4 +63,4 @@ class Pagination {
   }
 }
 
-export default Pagination;
+module.exports = Pagination;

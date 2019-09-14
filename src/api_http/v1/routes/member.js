@@ -1,13 +1,13 @@
-import createError from 'http-errors';
-import express from 'express';
-import asyncify from 'express-asyncify';
-import crypto from 'crypto';
+"use strict";
 
-import config from '../../../config';
+const createError = require('http-errors');
+const express = require('express');
+const asyncify = require('express-asyncify');
+const crypto = require('crypto');
+
+const config = require('../../../config');
 
 const router = asyncify(express.Router());
-
-export default router;
 
 router.get('/', async (req, res, next) => {
   if(Boolean(req.user_info) === false) {
@@ -306,3 +306,5 @@ router.delete('/', async (req, res, next) => {
     "user_id": user_id
   });
 });
+
+module.exports = router;
