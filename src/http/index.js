@@ -60,15 +60,15 @@ app.use(async (req, res, next) => {
   req.log_uuid = uuid;
   req.is_error = false;
 
-  // response 를 전송하지 못했을 경우.
+  // Node 10 부터 close 는 항상 trigger 됨.
   res.on('close', async () => {
     try {
       if(Boolean(req.db_connection) !== false) {
         const log_query = "INSERT INTO `logs` SET " +
-          "`unix_time` = ?, `uuid` = ?, `is_error` = 1, `headers` = ?, " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = ?, `headers` = ?, " +
           "`client_ip` = ?, `client_forwarded_ips` = ?, " +
           "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
-        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+        const log_val = [unix_time, uuid, req.is_error === true, headers, client_ip, client_forwarded_ips,
           http_method, original_url, url_query, req_body];
         await req.db_connection.execute(log_query, log_val);
 
@@ -78,10 +78,10 @@ app.use(async (req, res, next) => {
         req.db_connection = await req.db_pool.getConnection();
 
         const log_query = "INSERT INTO `logs` SET " +
-          "`unix_time` = ?, `uuid` = ?, `is_error` = 1, `headers` = ?, " +
+          "`unix_time` = ?, `uuid` = ?, `is_error` = ?, `headers` = ?, " +
           "`client_ip` = ?, `client_forwarded_ips` = ?, " +
           "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
-        const log_val = [unix_time, uuid, headers, client_ip, client_forwarded_ips,
+        const log_val = [unix_time, uuid, req.is_error === true, headers, client_ip, client_forwarded_ips,
           http_method, original_url, url_query, req_body];
         await req.db_connection.execute(log_query, log_val);
 
@@ -92,7 +92,8 @@ app.use(async (req, res, next) => {
     }
   });
 
-  // response 가 정상적으로 전송된 경우.
+  // Node 10 부터 close 는 항상 trigger 됨. 따라서 본 코드는 더이상 사용하지 않음.
+  /*
   res.on('finish', async () => {
     try {
       if(Boolean(req.db_connection) !== false) {
@@ -110,17 +111,18 @@ app.use(async (req, res, next) => {
       console.error(err.stack);
     }
   });
+   */
 
   next();
 });
 
 // HTTP API Version 3
-app.use('/v3', api_v3);
+app.use('/api/v3', api_v3);
 
 // catch 404 and forward to error handler
 app.use(async (req, res, next) => {
-  next(createError(404, "Requested URI not exists.", {
-    state: 'URI_NOT_EXISTS'
+  next(createError(404, "Requested URI not found.", {
+    state: 'URI_NOT_FOUND'
   }));
 });
 
@@ -130,7 +132,9 @@ app.use(async (err, req, res, next) => {
   req.is_error = true;
 
   /* 콘솔에 error 표시 */
-  console.error(err.stack);
+  if(process.env.NODE_ENV !== "production") {
+    console.error(err.stack);
+  }
 
   // Error Log
   if(Boolean(req.db_connection) !== false) {
@@ -139,8 +143,14 @@ app.use(async (err, req, res, next) => {
       const err_val = [req.log_unix_time, req.log_uuid, status_code, err.message, err.stack];
       await req.db_connection.execute(err_query, err_val);
     } catch(err) {
-      console.error(err.stack);
+      if(process.env.NODE_ENV !== "production") {
+        console.error(err.stack);
+      }
     }
+  }
+
+  if(process.env.NODE_ENV === "production") {
+    err.stack = undefined;
   }
 
   if(parseInt((status_code / 10).toString(), 10) === 50) {
