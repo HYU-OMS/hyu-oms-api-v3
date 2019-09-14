@@ -88,30 +88,11 @@ app.use(async (req, res, next) => {
         req.db_connection.destroy();
       }
     } catch(err) {
-      console.error(err.stack);
-    }
-  });
-
-  // Node 10 부터 close 는 항상 trigger 됨. 따라서 본 코드는 더이상 사용하지 않음.
-  /*
-  res.on('finish', async () => {
-    try {
-      if(Boolean(req.db_connection) !== false) {
-        const log_query = "INSERT INTO `logs` SET " +
-          "`unix_time` = ?, `uuid` = ?, `is_error` = ?, `headers` = ?, " +
-          "`client_ip` = ?, `client_forwarded_ips` = ?, " +
-          "`method` = ?, `original_url` = ?, `url_query` = ?, `req_body` = ?";
-        const log_val = [unix_time, uuid, (req.is_error === true) ? 1 : 0, headers, client_ip, client_forwarded_ips,
-          http_method, original_url, url_query, req_body];
-        await req.db_connection.execute(log_query, log_val);
-
-        req.db_connection.release();
+      if(process.env.NODE_ENV !== "production") {
+        console.error(err.stack);
       }
-    } catch(err) {
-      console.error(err.stack);
     }
   });
-   */
 
   next();
 });
