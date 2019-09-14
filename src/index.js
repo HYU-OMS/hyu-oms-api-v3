@@ -13,7 +13,7 @@ const config = require('./config');
 process.env.TZ = 'UTC';
 
 /* MySQL config variable check */
-const v1_mysql = config['v1']['mysql'];
+const v1_mysql = config['v3']['mysql'];
 if(v1_mysql['host'] === "" || v1_mysql['user'] === "" || v1_mysql['password'] === "" || v1_mysql['database'] === "") {
   const err = new Error("MySQL environment variables are empty. Please set these variables.");
   console.error(err);
@@ -21,7 +21,7 @@ if(v1_mysql['host'] === "" || v1_mysql['user'] === "" || v1_mysql['password'] ==
 }
 
 /* JWT config variable check */
-const v1_jwt = config['v1']['jwt'];
+const v1_jwt = config['v3']['jwt'];
 if(v1_jwt['secret_key'] === "") {
   const err = new Error("JWT secret key is empty. Please set this variable.");
   console.error(err);
@@ -29,7 +29,7 @@ if(v1_jwt['secret_key'] === "") {
 }
 
 /* AES config variable check */
-const v1_aes = config['v1']['aes'];
+const v1_aes = config['v3']['aes'];
 if(v1_aes['key'] === "") {
   const err = new Error("AES key is empty. Please set this variable.");
   console.error(err);
