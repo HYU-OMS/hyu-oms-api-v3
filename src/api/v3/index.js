@@ -85,7 +85,7 @@ app.use("/download", download_route);
 app.get("/", async (req, res, next) => {
   res.status(200);
   res.json({
-    "version": "1.0"
+    "version": "3.0"
   });
 });
 

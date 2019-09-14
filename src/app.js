@@ -9,7 +9,7 @@ const helmet = require('helmet');
 const uuidv4 = require('uuid/v4');
 const mysql = require('mysql2/promise');
 
-const http_api_v1 = require('./api_http/v1');
+const api_v3 = require('./api/v3');
 const config = require('./config');
 
 const app = asyncify(express());
@@ -112,8 +112,8 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// HTTP API Version 1
-app.use('/v1', http_api_v1);
+// HTTP API Version 3
+app.use('/v3', api_v3);
 
 // catch 404 and forward to error handler
 app.use(async (req, res, next) => {
