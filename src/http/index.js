@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 app.set("mysql_pool", mysql.createPool({
   connectionLimit: config['v3']['mysql']['connection_limit'],
   host: config['v3']['mysql']['host'],
+  port: config['v3']['mysql']['port'],
   database: config['v3']['mysql']['database'],
   user: config['v3']['mysql']['user'],
   password: config['v3']['mysql']['password'],

@@ -5,6 +5,7 @@ const config = {
   "v3": {
     "mysql": {
       "host":(process.env.API_V3_MYSQL_HOST || ""),
+      "port": (process.env.API_V3_MYSQL_PORT || 3306),
       "user": (process.env.API_V3_MYSQL_USER || ""),
       "password": (process.env.API_V3_MYSQL_PASSWD || ""),
       "database": (process.env.API_V3_MYSQL_DB || ""),
