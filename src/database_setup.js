@@ -178,6 +178,7 @@ const database_setup = async () => {
         "  `stack` mediumtext COLLATE utf8mb4_unicode_ci,\n" +
         "  PRIMARY KEY (`unix_time`,`uuid`)\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+      await db_connection.query(errors_query);
 
       db_connection.end();
     } catch(err) {
