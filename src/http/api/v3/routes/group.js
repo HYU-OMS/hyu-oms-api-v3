@@ -9,6 +9,51 @@ const config = require('../../../../config');
 
 const router = asyncify(express.Router());
 
+router.get('/:group_id', async (req, res, next) => {
+  if(Boolean(req.user_info) === false) {
+    throw createError(401, "JWT must be provided!", {
+      state: 'AUTH_HEADER_EMPTY_ERR',
+      info: ['Authorization']
+    });
+  }
+
+  const group_id = parseInt(req.params.group_id, 10);
+  if(isNaN(group_id)) {
+    throw createError(400, "'group_id' must be integer.", {
+      state: 'REQUIRED_VALUE_INVALID_ERR',
+      info: ['group_id']
+    });
+  }
+
+  // DB Connection 생성 후 req object에 assign.
+  req.db_connection = await req.db_pool.getConnection();
+
+  const group_chk_query = "SELECT * FROM `groups` WHERE `id` = ?";
+  const group_chk_val = [group_id];
+  const [group_rows, group_fields] = await req.db_connection.execute(group_chk_query, group_chk_val);
+
+  if(group_rows.length === 0 || group_rows[0]['is_enabled'] !== 1) {
+    throw createError(404, "Requested 'group_id' not found.", {
+      state: 'DATA_NOT_FOUND_ERR',
+      info: ['group_id']
+    });
+  }
+
+  const chk_member_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ?";
+  const chk_member_val = [group_id, req.user_info['user_id']];
+  const [chk_member_rows, chk_member_fields] = await req.db_connection.execute(chk_member_query, chk_member_val);
+
+  if(chk_member_rows.length === 0) {
+    throw createError(403, "Not a member of this group.", {
+      state: 'ACCESS_DENIED_ERR',
+      info: ['group_id']
+    });
+  }
+
+  res.status(200);
+  res.json(group_rows[0]);
+});
+
 router.get('/', async (req, res, next) => {
   if(Boolean(req.user_info) === false) {
     throw createError(401, "JWT must be provided!", {
