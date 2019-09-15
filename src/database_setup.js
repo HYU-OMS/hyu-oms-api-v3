@@ -33,18 +33,15 @@ const database_setup = async () => {
 
       // Create `groups` table
       const groups_query = "" +
-        "CREATE TABLE IF NOT EXISTS `groups` (\n" +
-        "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
-        "  `name` varchar(255) NOT NULL,\n" +
-        "  `creator_id` int(11) NOT NULL,\n" +
-        "  `signup_code` varchar(64) DEFAULT NULL,\n" +
-        "  `is_enabled` tinyint(1) NOT NULL DEFAULT '1',\n" +
+        "CREATE TABLE `members` (\n" +
+        "  `group_id` int(11) NOT NULL,\n" +
+        "  `user_id` int(11) NOT NULL,\n" +
+        "  `role` int(11) NOT NULL DEFAULT '0' COMMENT '0 - pending approval\\n1 - member\\n2 - admin\\n3 - creator',\n" +
         "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
         "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-        "  PRIMARY KEY (`id`),\n" +
-        "  KEY `fk_groups_users1_idx` (`creator_id`),\n" +
-        "  CONSTRAINT `fk_groups_users1` FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
-        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+        "  PRIMARY KEY (`group_id`,`user_id`),\n" +
+        "  KEY `user_id` (`user_id`)\n" +
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
       await db_connection.query(groups_query);
 
       // Create `members` table
