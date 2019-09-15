@@ -33,7 +33,23 @@ const database_setup = async () => {
 
       // Create `groups` table
       const groups_query = "" +
-        "CREATE TABLE `members` (\n" +
+        "CREATE TABLE IF NOT EXISTS `groups` (\n" +
+        "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+        "  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n" +
+        "  `creator_id` int(11) NOT NULL,\n" +
+        "  `is_enabled` tinyint(1) NOT NULL DEFAULT '1',\n" +
+        "  `allow_register` tinyint(1) NOT NULL DEFAULT '0',\n" +
+        "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+        "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+        "  PRIMARY KEY (`id`),\n" +
+        "  KEY `is_enabled` (`is_enabled`),\n" +
+        "  KEY `allow_register` (`allow_register`)\n" +
+        ") ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+      await db_connection.query(groups_query);
+
+      // Create `members` table
+      const members_query = "" +
+        "CREATE TABLE IF NOT EXISTS `members` (\n" +
         "  `group_id` int(11) NOT NULL,\n" +
         "  `user_id` int(11) NOT NULL,\n" +
         "  `role` int(11) NOT NULL DEFAULT '0' COMMENT '0 - pending approval\\n1 - member\\n2 - admin\\n3 - creator',\n" +
@@ -42,21 +58,6 @@ const database_setup = async () => {
         "  PRIMARY KEY (`group_id`,`user_id`),\n" +
         "  KEY `user_id` (`user_id`)\n" +
         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
-      await db_connection.query(groups_query);
-
-      // Create `members` table
-      const members_query = "" +
-        "CREATE TABLE IF NOT EXISTS `members` (\n" +
-        "  `group_id` int(11) NOT NULL,\n" +
-        "  `user_id` int(11) NOT NULL,\n" +
-        "  `role` int(11) NOT NULL DEFAULT '0' COMMENT '0 - Normal\\\\n1 - Privileged Access??\\\\n2 - Admin Access',\n" +
-        "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-        "  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-        "  PRIMARY KEY (`group_id`,`user_id`),\n" +
-        "  KEY `fk_members_users1_idx` (`user_id`),\n" +
-        "  CONSTRAINT `fk_members_groups1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n" +
-        "  CONSTRAINT `fk_members_users1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\n" +
-        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
       await db_connection.query(members_query);
 
       // Create `menus` table
