@@ -162,7 +162,7 @@ router.put('/', async (req, res, next) => {
   // DB Connection 생성 후 req object에 assign.
   req.db_connection = await req.db_pool.getConnection();
 
-  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
@@ -243,7 +243,7 @@ router.delete('/', async (req, res, next) => {
   // DB Connection 생성 후 req object에 assign.
   req.db_connection = await req.db_pool.getConnection();
 
-  const p_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+  const p_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const p_chk_val = [group_id, req.user_info['user_id']];
   const [p_chk_rows, p_chk_fields] = await req.db_connection.execute(p_chk_query, p_chk_val);
 
