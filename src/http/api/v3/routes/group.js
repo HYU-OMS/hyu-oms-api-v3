@@ -28,7 +28,7 @@ router.get('/', async (req, res, next) => {
   }
 
   const fetch_q_r = " " +
-    "SELECT `g`.`id`, `g`.`name`, `g`.`created_at`, `m`.`role` " +
+    "SELECT `g`.`id`, `g`.`name`, `g`.`creator_id`, `g`.`created_at`, `m`.`role` " +
     "FROM `groups` `g` " +
     "JOIN `members` `m` " +
     "ON `g`.`id` = `m`.`group_id` " +
@@ -124,7 +124,7 @@ router.post('/', async (req, res, next) => {
 
     new_group_id = group_add_results.insertId;
 
-    const member_update_query = "INSERT INTO `members` SET `group_id` = ?, `user_id` = ?, `role` = '2'";
+    const member_update_query = "INSERT INTO `members` SET `group_id` = ?, `user_id` = ?, `role` = '3'";
     const member_update_val = [new_group_id, req.user_info['user_id']];
     await req.db_connection.execute(member_update_query, member_update_val);
 
@@ -159,14 +159,7 @@ router.put('/:group_id', async (req, res, next) => {
 
   const content = req.body || {};
 
-  let signup_code = null;
-  if(Boolean(content['code']) === true) {
-    signup_code = content['code'];
-
-    const cipher = crypto.createCipher('aes-256-cbc', config['v3']['aes']['key']);
-    signup_code = cipher.update(signup_code, 'utf8', 'base64');
-    signup_code += cipher.final('base64');
-  }
+  const allow_register = Boolean(content['allow_register']);
 
   // DB Connection 생성 후 req object에 assign.
   req.db_connection = await req.db_pool.getConnection();
@@ -183,7 +176,7 @@ router.put('/:group_id', async (req, res, next) => {
   }
 
   if(group_rows[0]['creator_id'] !== req.user_info['user_id']) {
-    throw createError(403, "Only creator of this group can update signup code!", {
+    throw createError(403, "Only creator of this group can update it!", {
       state: 'ACCESS_DENIED_ERR',
       info: ['group_id', 'user_id']
     });
@@ -192,8 +185,8 @@ router.put('/:group_id', async (req, res, next) => {
   try {
     await req.db_connection.query("START TRANSACTION");
 
-    const group_update_query = "UPDATE `groups` SET `signup_code` = ?, `updated_at` = ? WHERE `id` = ?";
-    const group_update_val = [signup_code, new Date(new Date().toUTCString()), group_id];
+    const group_update_query = "UPDATE `groups` SET `allow_register` = ?, `updated_at` = ? WHERE `id` = ?";
+    const group_update_val = [allow_register, new Date(new Date().toUTCString()), group_id];
     await req.db_connection.execute(group_update_query, group_update_val);
 
     await req.db_connection.query("COMMIT");
@@ -203,16 +196,10 @@ router.put('/:group_id', async (req, res, next) => {
     throw err;
   }
 
-  if(signup_code !== null) {
-    const decipher = crypto.createDecipher('aes-256-cbc', config['v3']['aes']['key']);
-    signup_code = decipher.update(signup_code, 'base64', 'utf-8');
-    signup_code += decipher.final('utf-8');
-  }
-
   res.status(200);
   res.json({
     "group_id": group_id,
-    "code": signup_code
+    "allow_register": allow_register
   });
 });
 
