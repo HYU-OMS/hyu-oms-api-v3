@@ -29,7 +29,7 @@ router.get('/', async (req, res, next) => {
     // DB Connection 생성 후 req object 에 assign.
     req.db_connection = await req.db_pool.getConnection();
 
-    const creator_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+    const creator_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
     const creator_chk_val = [group_id, req.user_info['user_id']];
     const [creator_chk_rows, creator_chk_fields] = await req.db_connection.execute(creator_chk_query, creator_chk_val);
 

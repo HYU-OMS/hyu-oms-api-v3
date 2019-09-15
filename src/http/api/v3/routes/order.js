@@ -454,12 +454,12 @@ router.put('/:order_id', async (req, res, next) => {
   const group_id = parseInt(get_order_rows[0]['group_id'], 10);
   const table_name = get_order_rows[0]['table_id'];
 
-  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 0";
+  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
   if(chk_p_rows.length === 0) {
-    throw createError(403, "Not an operator of this group.", {
+    throw createError(403, "Not an admin of this group.", {
       state: 'ACCESS_DENIED_ERR',
       info: ['order_id']
     });

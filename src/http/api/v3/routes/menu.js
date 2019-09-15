@@ -90,7 +90,7 @@ router.post('/', async (req, res, next) => {
   req.db_connection = await req.db_pool.getConnection();
 
   // 이전 버전에서 role check 누락됨
-  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
@@ -175,7 +175,7 @@ router.put('/:menu_id', async (req, res, next) => {
   const name = menu_chk_rows[0]['name'];
 
   // 이전 버전에서 role check 누락됨
-  const p_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+  const p_chk_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const p_chk_val = [group_id, req.user_info['user_id']];
   const [p_chk_rows, p_chk_fields] = await req.db_connection.execute(p_chk_query, p_chk_val);
 

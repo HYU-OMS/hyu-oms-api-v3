@@ -245,7 +245,7 @@ router.put('/:setmenu_id', async (req, res, next) => {
   const name = setmenu_chk_rows[0]['name'];
 
   // 이전 버전에서 role check 누락됨
-  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` = 2";
+  const chk_p_query = "SELECT * FROM `members` WHERE `group_id` = ? AND `user_id` = ? AND `role` > 1";
   const chk_p_val = [group_id, req.user_info['user_id']];
   const [chk_p_rows, chk_p_fields] = await req.db_connection.execute(chk_p_query, chk_p_val);
 
