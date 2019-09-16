@@ -53,7 +53,7 @@ mysql database 는 사전에 생성이 되어 있어야 하며 지정한 유저�
 ### 서버 시작하기 (Development)
 ```sh
 $ npm install
-$ NODE_ENV=production PORT=[YOUR_CUSTOM_PORT_NUM] npm start
+$ NODE_ENV=development PORT=[YOUR_CUSTOM_PORT_NUM] npm start
 ```
 
 ### 서버 시작하기 (Production)
