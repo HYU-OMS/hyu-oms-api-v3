@@ -27,10 +27,10 @@
   - 2019년
     - Back-End 언어를 Python3 -> Node.JS (with [ExpressJS](https://expressjs.com)) 로 변경
     - Front-End UI 일부 변경 ([Material UI](https://material-ui.com) 는 그대로 유지)
-    - 실시간 업데이트를 위해 Socket.IO 도입 시도했으나 Rollback.
+    - 실시간 업데이트를 위해 Socket.IO 도입.
     - 그룹 가입 방식을 변경
-        - 기존에 사용자가 특정 그룹의 Sign Up code 를 입력하도록 했다면
-        - 이제는 가입 가능한 그룹 목록을 클릭하여 가입 신청을 하도록 변경.
+      - 기존에 사용자가 특정 그룹의 Sign Up code 를 입력하도록 했다면
+      - 이제는 가입 가능한 그룹 목록을 클릭하여 가입 신청을 하도록 변경.
 
 ### HYU-OMS API 서버를 운영하기 위해 필요한 것들
   - Node.JS 10.x or higher
