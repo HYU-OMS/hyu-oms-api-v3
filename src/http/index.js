@@ -62,6 +62,11 @@ app.use(async (req, res, next) => {
 
   // Node 10 부터 close 는 항상 trigger 됨.
   res.on('close', async () => {
+    // ignore kubernetes readinessProbe and livenessProbe
+    if (original_url === '/api/v3') {
+      return;
+    }
+
     try {
       if(Boolean(req.db_connection) !== false) {
         const log_query = "INSERT INTO `logs` SET " +
