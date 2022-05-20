@@ -37,14 +37,14 @@ if(v1_aes['key'] === "") {
 }
 
 // Create tables on database
-database_setup()
-  .then((result) => {
-    // Do nothing
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(-1);
-  });
+// database_setup()
+//   .then((result) => {
+//     // Do nothing
+//   })
+//   .catch((err) => {
+//     console.error(err);
+//     process.exit(-1);
+//   });
 
 const debug_on_listen = debug('hyu-oms-api:server');
 
